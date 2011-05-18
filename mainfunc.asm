@@ -37,6 +37,8 @@
 ;;
 ;; Index:
 ;;     _print_header()             -- Print the HANGMAN logo on the screen.
+;;     _print_help(HELP_STR)       -- Print the help message on the bottom of
+;;                                    the screen.
 ;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
 ;;     _clear_screen()             -- Clear the screen.
@@ -117,7 +119,7 @@ ret
 
 _print_header:
 
-mov POS_X, 9
+mov POS_X, (COLS-header_len)/2
 mov POS_Y, 0
 
 mov ah, 0x09
@@ -149,8 +151,8 @@ header_height equ  7
 
 
 
-;========================================================== _print_help() ====
-;; Print the help message on the bottom of the screen
+;================================================== _print_help(HELP_STR) ====
+;; Print the help message on the bottom of the screen.
 
 ;; Usage:
 ;; mov HELP_STR, offset <string_label>

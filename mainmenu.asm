@@ -43,7 +43,7 @@
 
 
 ;=========================================================== _main_menu() ====
-;; Display the main menu
+;; Display the main menu.
 
 ;; Using:
 ;; call _main_menu
@@ -97,6 +97,7 @@ main_menu_st:
 main_menu_end:
 
 ret
+
 
 
 ;=================================================== _draw_main_menu() ====

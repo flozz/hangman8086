@@ -33,74 +33,64 @@
 
 
 ;;
-;; This is the main file of the program, contain the initialisation of the
-;; program, the includes, and the _main() function.
+;; Contains the function that print the startup screen.
+;;
+;; Index:
+;;     _print_startup_screen() -- Print the startup screen.
 ;;
 
 
 
-;=================================================================== Init ====
-name "HANGMAN"  ;Output file name
-org  0x100      ;Set location counter to 0x100
-jmp _main       ;Jump to _main
+;================================================ _print_startup_screen() ====
+;; Print the startup screen.
+
+;; Usage:
+;; call _print_startup_screen
 
 
-
-;============================================================== Constants ====
-COLS equ 80     ;Terminal width
-ROWS equ 25     ;Terminal height
-
-COLOR_HEADER equ 00011111b  ;Color of the Header an help area
-COLOR_ACTIVE equ 10011111b  ;Color of the Menu/Game/Animation area
-COLOR_CURSOR equ 10011010b  ;Color of the menu cursor
-
-
-
-;=============================================================== Includes ====
-;CODE
-include "mainfunc.asm" ;Contains the functions used everywhere in the program.
-include "mainmenu.asm" ;Contains the functions of the main menu.
-include "playsnd.asm"  ;Contain the function for playing sounds.
-include "stscreen.asm" ;Contains the function that print the startup screen.
-
-;RESOURCE
-include "sounds.res"   ;Contain the sounds.
-
-
-
-;================================================================ _main() ====
-;; The main function.
-
-
-_main:
-
-;Set the video mode to 80x25, 16 colors, 8 pages
-mov ah, 0x00
-mov al, 0x03
-int 0x10
-
-;Hide the cursor
-mov ah, 0x01
-mov ch, 32
-int 0x10
-
-;Disable consol blinking (for having more colors
-mov ax, 0x1003
-mov bx, 0
-int 0x10
-
-;Let's go !
-call _print_startup_screen
-
-mov SOUND, offset SND_START
-call _play_sound
-
-call _main_menu
+_print_startup_screen:
 
 call _clear_screen
 
-;Exit
-mov ah, 0x4C
-int 0x21
+mov POS_X, (COLS-startup_scr_len)/2
+mov POS_Y, ROWS-startup_scr_height-2
+
+mov ah, 0x09
+mov dx, offset startup_scr
+
+;Header
+prn_st_scr_loop:
+    call _move_cursor
+    int 0x21
+    inc POS_Y
+    add dx, startup_scr_len
+    cmp POS_Y, startup_scr_height+(ROWS-startup_scr_height-2)
+    jne prn_st_scr_loop
+
+ret
+
+
+;Datas of the _print_header function
+startup_scr db "  ____  _____ ____ _____ _____    _    __  __  $"
+            db " | __ )| ____/ ___|_   _| ____|  / \  |  \/  | $"
+            db " |  _ \|  _| \___ \ | | |  _|   / _ \ | |\/| | $"
+            db " | |_) | |___ ___) || | | |___ / ___ \| |  | | $"
+            db " |____/|_____|____/ |_| |_____/_/   \_\_|  |_| $"
+            db "                                               $"
+            db "                 - Presents -                  $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "    Copyright (C) 2011  Fabien LOISON          $"
+            db "    Copyright (C) 2011  Mathilde BOUTIGNY      $"
+            db "    Copyright (C) 2011  Vincent PEYROUSE       $"
+            db "    Copyright (C) 2011  Germain CARRE          $"
+            db "    Copyright (C) 2011  Matthis FRENAY         $"
+
+startup_scr_len    equ 48
+startup_scr_height equ 18
 
 
