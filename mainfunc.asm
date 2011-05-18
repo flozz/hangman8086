@@ -39,6 +39,7 @@
 ;;     _print_header()             -- Print the HANGMAN logo on the screen.
 ;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
+;;     _clear_screen()             -- Clear the screen.
 ;;
 
 
@@ -116,6 +117,40 @@ int 0x10
 
 ;Restore registers
 pop dx
+pop bx
+pop ax
+
+ret
+
+
+;======================================================== _clear_screen() ====
+;; Clear the screen.
+
+_clear_screen:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Clear the screen
+mov ah, 0x07
+mov al, 0         ; Clear
+mov bh, 00001111b ; White on black
+mov cx, 0         ; (0,0) +-----------+
+mov dh, ROWS      ;       |           |
+mov dl, COLS      ;       +-----------+ (COLS,ROWS)
+int 0x10
+
+;Move the cursor to (0,0)
+mov POS_X, 0
+mov POS_Y, 0
+call _move_cursor
+
+;Restore registers
+pop dx
+pop cx
 pop bx
 pop ax
 

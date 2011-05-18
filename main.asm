@@ -73,8 +73,10 @@ mov ch, 32
 int 0x10
 
 ;Let's go !
+call _clear_screen
 call _print_header
 call _main_menu
+call _clear_screen
 
 ;Exit
 mov ah, 0x4C
