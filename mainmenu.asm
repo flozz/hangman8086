@@ -45,17 +45,18 @@
 ;=========================================================== _main_menu() ====
 ;; Display the main menu
 
+;; Using:
+;; call _main_menu
+
+
 _main_menu:
 
-;Move the cursor at the bottom of the screen
-mov pos_x, 1
-mov pos_y, ROWS-2
-call _move_cursor
+;Draw the UI
+call _draw_ui
 
 ;Print the help message
-mov ah, 0x09
-mov dx, offset main_menu_help
-int 0x21
+mov HELP_STR, offset main_menu_help
+call _print_help
 
 ;The main menu
 main_menu_st:
@@ -101,12 +102,16 @@ ret
 ;=================================================== _draw_main_menu() ====
 ;; (Re)draw the main menu on the screen.
 
+;; Using:
+;; call _draw_main_menu
+
+
 _draw_main_menu:
 
 ;Center the menu
-mov pos_x, (80-main_menu_items_len)/2
+mov pos_x, (COLS-main_menu_items_len)/2
 mov pos_y, header_height
-add pos_y, 5
+add pos_y, 4
 
 ;Prepare the print
 mov ah, 0x09
@@ -125,9 +130,9 @@ draw_menu_loop:
     jne draw_menu_loop
 
 
-;Display the arrow on the selected item
+;Display the cursor on the selected item
 mov pos_y, header_height
-add pos_y, 5
+add pos_y, 4
 mov ah, 0x00
 mov al, main_menu_selected
 mov bl, 2
@@ -139,7 +144,7 @@ call _move_cursor
 mov ah, 0x09
 mov al, 0x10
 mov bh, 0
-mov bl, 00001010b ; Light green
+mov bl, COLOR_CURSOR ; color
 mov cx, 1
 int 0x10
 
@@ -153,7 +158,7 @@ main_menu_selected db 1  ;The selected item of the menu
 
 
 ;=========================== Datas for _main_menu() and _draw_main_menu() ====
-main_menu_help  db "<Space> Select the next item    <Enter> Validate the item$"
+main_menu_help  db "<Space> Select the next item   <Enter> Validate the item$"
 main_menu_items db "  Single Player$"
                 db "  Two players  $"
                 db "  Options      $"

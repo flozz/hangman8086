@@ -41,13 +41,18 @@
 
 ;=================================================================== Init ====
 name "HANGMAN"  ;Output file name
-
 org  0x100      ;Set location counter to 0x100
+jmp _main       ;Jump to _main
 
+
+
+;============================================================== Constants ====
 COLS equ 80     ;Terminal width
 ROWS equ 25     ;Terminal height
 
-jmp _main       ;Jump to _main
+COLOR_HEADER equ 00011111b  ;Color of the Header an help area
+COLOR_ACTIVE equ 10011111b  ;Color of the Menu/Game/Animation area
+COLOR_CURSOR equ 10011010b  ;Color of the menu cursor
 
 
 
@@ -59,6 +64,7 @@ include "mainmenu.asm"  ;Main menu
 
 ;================================================================ _main() ====
 ;; The main function.
+
 
 _main:
 
@@ -72,9 +78,12 @@ mov ah, 0x01
 mov ch, 32
 int 0x10
 
+;Disable consol blinking (for having more colors
+mov ax, 0x1003
+mov bx, 0
+int 0x10
+
 ;Let's go !
-call _clear_screen
-call _print_header
 call _main_menu
 call _clear_screen
 
