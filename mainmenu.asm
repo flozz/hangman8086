@@ -58,6 +58,13 @@ call _draw_ui
 mov HELP_STR, offset main_menu_help
 call _print_help
 
+jmp main_menu_st
+
+;Play a sound when the item change
+main_menu_st_snd:
+    mov SOUND, offset SND_MENU_CH_ITEM
+    call _play_sound
+
 ;The main menu
 main_menu_st:
     ;Draw the menu
@@ -81,14 +88,17 @@ main_menu_st:
         inc main_menu_selected
 
         cmp main_menu_selected, main_menu_items_numb
-        jne main_menu_st
+        jne main_menu_st_snd
 
         mov main_menu_selected, 0
 
-        jmp main_menu_st
+        jmp main_menu_st_snd
 
     ;Enter key pressed
     main_menu_kb_enter:
+        mov SOUND, offset SND_MENU_VALID
+        call _play_sound
+
         cmp main_menu_selected, 4      ;Exit
         je main_menu_end
 

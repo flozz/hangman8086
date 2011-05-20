@@ -53,3 +53,16 @@ SND_START dw    1046, 12
           dw       0,  0
 
 
+
+;================================================================== Menus ====
+;                     Sound, duration
+SND_MENU_CH_ITEM dw    4000, 01
+                 dw       0,  0
+
+
+;                   Sound, duration
+SND_MENU_VALID dw    2000, 01
+               dw    0800, 02
+               dw       0,  0
+
+

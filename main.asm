@@ -50,9 +50,9 @@ jmp _main       ;Jump to _main
 COLS equ 80     ;Terminal width
 ROWS equ 25     ;Terminal height
 
-COLOR_HEADER equ 00011111b  ;Color of the Header an help area
-COLOR_ACTIVE equ 10011111b  ;Color of the Menu/Game/Animation area
-COLOR_CURSOR equ 10011010b  ;Color of the menu cursor
+COLOR_HEADER equ 00101111b  ;Color of the Header an help area
+COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
+COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
 
 
 
@@ -84,7 +84,7 @@ mov ah, 0x01
 mov ch, 32
 int 0x10
 
-;Disable consol blinking (for having more colors
+;Disable consol blinking and enable intensive colors
 mov ax, 0x1003
 mov bx, 0
 int 0x10
