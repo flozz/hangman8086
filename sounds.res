@@ -33,75 +33,36 @@
 
 
 ;;
-;; This is the main file of the program, contain the initialisation of the
-;; program, the includes, and the _main() function.
+;; Contains the sounds.
 ;;
 
 
 
-;=================================================================== Init ====
-name "HANGMAN"  ;Output file name
-org  0x100      ;Set location counter to 0x100
-jmp _main       ;Jump to _main
+;========================================================== Startup music ====
+;              Sound, duration
+SND_START dw    1046, 12
+          dw    1175, 04
+          dw    1328, 04
+          dw    1046, 08
+          dw    1175, 04
+          dw    1328, 04
+          dw    1046, 08
+          dw    1175, 04
+          dw    1328, 04
+          dw    1480, 08
+          dw       0,  0
 
 
 
-;============================================================== Constants ====
-COLS equ 80     ;Terminal width
-ROWS equ 25     ;Terminal height
-
-COLOR_HEADER equ 00101111b  ;Color of the Header an help area
-COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
-COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
+;================================================================== Menus ====
+;                     Sound, duration
+SND_MENU_CH_ITEM dw    4000, 01
+                 dw       0,  0
 
 
-
-;=============================================================== Includes ====
-;CODE
-include "mainfunc.asm" ;Contains the functions used everywhere in the program.
-include "mainmenu.asm" ;Contains the functions of the main menu.
-include "playsnd.asm"  ;Contains the function for playing sounds.
-include "stscreen.asm" ;Contains the function that print the startup screen.
-
-;RESOURCE
-include "asciiart.res" ;Contains the ascii art of the game.
-include "sounds.res"   ;Contains the sounds.
-
-
-
-;================================================================ _main() ====
-;; The main function.
-
-
-_main:
-
-;Set the video mode to 80x25, 16 colors, 8 pages
-mov ah, 0x00
-mov al, 0x03
-int 0x10
-
-;Hide the cursor
-mov ah, 0x01
-mov ch, 32
-int 0x10
-
-;Disable consol blinking and enable intensive colors
-mov ax, 0x1003
-mov bx, 0
-int 0x10
-
-;Let's go !
-call _print_startup_screen
-
-mov SOUND, offset SND_START
-call _play_sound
-
-call _main_menu
-
-call _clear_screen
-
-;Exit
-mov ah, 0x4C
-int 0x21
+;                   Sound, duration
+SND_MENU_VALID dw    2000, 01
+               dw    0800, 02
+               dw       0,  0
 
 

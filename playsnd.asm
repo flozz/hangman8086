@@ -33,75 +33,82 @@
 
 
 ;;
-;; This is the main file of the program, contain the initialisation of the
-;; program, the includes, and the _main() function.
+;; Contains the function for playing sounds.
+;;
+;; Index:
+;;     _play_sound() -- Play a sound.
 ;;
 
 
 
-;=================================================================== Init ====
-name "HANGMAN"  ;Output file name
-org  0x100      ;Set location counter to 0x100
-jmp _main       ;Jump to _main
+;========================================================== _play_sound() ====
+;; Play a sound.
+
+;; Usage:
+;; mov SOUND, offset <mysound>
+;; call _play_sound
+
+;; Function arg:
+SOUND dw 0 ;The adress of the sound to play.
 
 
+_play_sound:
 
-;============================================================== Constants ====
-COLS equ 80     ;Terminal width
-ROWS equ 25     ;Terminal height
+;Backup registers
+push ax
+push bx
+push cx
+push dx
 
-COLOR_HEADER equ 00101111b  ;Color of the Header an help area
-COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
-COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
+;Turn speaker on
+mov  dx, 0x61
+in   al, dx
+or   al, 0x03
+out  dx, al
 
+;Sound loop
+mov bx, SOUND
+mov dx, 0
 
+sound_loop:
+    ;Play sound
+    mov ax, [bx]
+    or  ax, 3
+    out 0x42, al ;output low
+    xchg ah, al
+    out 0x42, al ;output high
 
-;=============================================================== Includes ====
-;CODE
-include "mainfunc.asm" ;Contains the functions used everywhere in the program.
-include "mainmenu.asm" ;Contains the functions of the main menu.
-include "playsnd.asm"  ;Contains the function for playing sounds.
-include "stscreen.asm" ;Contains the function that print the startup screen.
+    ;Point to the next field (duration)
+    inc bx
+    inc bx
 
-;RESOURCE
-include "asciiart.res" ;Contains the ascii art of the game.
-include "sounds.res"   ;Contains the sounds.
+    ;Sleep during the given duration
+    push ax
+    mov cx, [bx]
+    mov ah, 0x86
+    int 0x15
+    pop ax
 
+    ;Point to the next field (sound)
+    inc bx
+    inc bx
 
+    ;Check if it is finished or not
+    cmp [bx], 0
+    jne sound_loop
 
-;================================================================ _main() ====
-;; The main function.
+;Turn speaker off
+mov  dx, 0x61
+in   al, dx
+and  al, 0xfc
+out  dx, al
 
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
 
-_main:
-
-;Set the video mode to 80x25, 16 colors, 8 pages
-mov ah, 0x00
-mov al, 0x03
-int 0x10
-
-;Hide the cursor
-mov ah, 0x01
-mov ch, 32
-int 0x10
-
-;Disable consol blinking and enable intensive colors
-mov ax, 0x1003
-mov bx, 0
-int 0x10
-
-;Let's go !
-call _print_startup_screen
-
-mov SOUND, offset SND_START
-call _play_sound
-
-call _main_menu
-
-call _clear_screen
-
-;Exit
-mov ah, 0x4C
-int 0x21
+ret
 
 
