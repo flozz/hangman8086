@@ -33,7 +33,7 @@
 
 
 ;;
-;; Contain the function for playing sounds.
+;; Contains the function for playing sounds.
 ;;
 ;; Index:
 ;;     _play_sound() -- Play a sound.

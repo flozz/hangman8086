@@ -33,36 +33,46 @@
 
 
 ;;
-;; Contains the sounds.
+;; Contains the ascii art of the game.
 ;;
 
 
 
-;========================================================== Startup music ====
-;              Sound, duration
-SND_START dw    1046, 12
-          dw    1175, 04
-          dw    1328, 04
-          dw    1046, 08
-          dw    1175, 04
-          dw    1328, 04
-          dw    1046, 08
-          dw    1175, 04
-          dw    1328, 04
-          dw    1480, 08
-          dw       0,  0
+;============================================================ Header Logo ====
+header db " __   __  _______  __    _  _______  __   __  _______  __    _ $"
+       db "|  | |  ||   _   ||  |  | ||       ||  |_|  ||   _   ||  |  | |$"
+       db "|  |_|  ||  |_|  ||   |_| ||    ___||       ||  |_|  ||   |_| |$"
+       db "|       ||       ||       ||   | __ |       ||       ||       |$"
+       db "|       ||       ||  _    ||   ||  ||       ||       ||  _    |$"
+       db "|   _   ||   _   || | |   ||   |_| || ||_|| ||   _   || | |   |$"
+       db "|__| |__||__| |__||_|  |__||_______||_|   |_||__| |__||_|  |__|$"
+
+header_len    equ 64
+header_height equ  7
 
 
 
-;================================================================== Menus ====
-;                     Sound, duration
-SND_MENU_CH_ITEM dw    4000, 01
-                 dw       0,  0
+;========================================================= Startup Screen ====
+startup_scr db "  ____  _____ ____ _____ _____    _    __  __  $"
+            db " | __ )| ____/ ___|_   _| ____|  / \  |  \/  | $"
+            db " |  _ \|  _| \___ \ | | |  _|   / _ \ | |\/| | $"
+            db " | |_) | |___ ___) || | | |___ / ___ \| |  | | $"
+            db " |____/|_____|____/ |_| |_____/_/   \_\_|  |_| $"
+            db "                                               $"
+            db "                 - Presents -                  $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "                                               $"
+            db "    Copyright (C) 2011  Fabien LOISON          $"
+            db "    Copyright (C) 2011  Mathilde BOUTIGNY      $"
+            db "    Copyright (C) 2011  Vincent PEYROUSE       $"
+            db "    Copyright (C) 2011  Germain CARRE          $"
+            db "    Copyright (C) 2011  Matthis FRENAY         $"
 
-
-;                   Sound, duration
-SND_MENU_VALID dw    2000, 01
-               dw    0800, 02
-               dw       0,  0
+startup_scr_len    equ 48
+startup_scr_height equ 18
 
 

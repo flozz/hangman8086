@@ -137,19 +137,6 @@ header_loop:
 ret
 
 
-;Datas of the _print_header function
-header db " __   __  _______  __    _  _______  __   __  _______  __    _ $"
-       db "|  | |  ||   _   ||  |  | ||       ||  |_|  ||   _   ||  |  | |$"
-       db "|  |_|  ||  |_|  ||   |_| ||    ___||       ||  |_|  ||   |_| |$"
-       db "|       ||       ||       ||   | __ |       ||       ||       |$"
-       db "|       ||       ||  _    ||   ||  ||       ||       ||  _    |$"
-       db "|   _   ||   _   || | |   ||   |_| || ||_|| ||   _   || | |   |$"
-       db "|__| |__||__| |__||_|  |__||_______||_|   |_||__| |__||_|  |__|$"
-
-header_len    equ 64
-header_height equ  7
-
-
 
 ;================================================== _print_help(HELP_STR) ====
 ;; Print the help message on the bottom of the screen.

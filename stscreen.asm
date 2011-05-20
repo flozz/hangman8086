@@ -70,27 +70,3 @@ prn_st_scr_loop:
 ret
 
 
-;Datas of the _print_header function
-startup_scr db "  ____  _____ ____ _____ _____    _    __  __  $"
-            db " | __ )| ____/ ___|_   _| ____|  / \  |  \/  | $"
-            db " |  _ \|  _| \___ \ | | |  _|   / _ \ | |\/| | $"
-            db " | |_) | |___ ___) || | | |___ / ___ \| |  | | $"
-            db " |____/|_____|____/ |_| |_____/_/   \_\_|  |_| $"
-            db "                                               $"
-            db "                 - Presents -                  $"
-            db "                                               $"
-            db "                                               $"
-            db "                                               $"
-            db "                                               $"
-            db "                                               $"
-            db "                                               $"
-            db "    Copyright (C) 2011  Fabien LOISON          $"
-            db "    Copyright (C) 2011  Mathilde BOUTIGNY      $"
-            db "    Copyright (C) 2011  Vincent PEYROUSE       $"
-            db "    Copyright (C) 2011  Germain CARRE          $"
-            db "    Copyright (C) 2011  Matthis FRENAY         $"
-
-startup_scr_len    equ 48
-startup_scr_height equ 18
-
-

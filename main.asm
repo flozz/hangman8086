@@ -60,11 +60,12 @@ COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
 ;CODE
 include "mainfunc.asm" ;Contains the functions used everywhere in the program.
 include "mainmenu.asm" ;Contains the functions of the main menu.
-include "playsnd.asm"  ;Contain the function for playing sounds.
+include "playsnd.asm"  ;Contains the function for playing sounds.
 include "stscreen.asm" ;Contains the function that print the startup screen.
 
 ;RESOURCE
-include "sounds.res"   ;Contain the sounds.
+include "asciiart.res" ;Contains the ascii art of the game.
+include "sounds.res"   ;Contains the sounds.
 
 
 
