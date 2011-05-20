@@ -36,18 +36,21 @@
 ;; Contains the functions used everywhere in the program.
 ;;
 ;; Index:
+;;     _draw_ui()                  -- Draw the user interface on the screen.
 ;;     _print_header()             -- Print the HANGMAN logo on the screen.
 ;;     _print_help(HELP_STR)       -- Print the help message on the bottom of
 ;;                                    the screen.
 ;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
+;;     _input_letter()             -- Wait for input and return an uppercase
+;;                                    letter.
 ;;     _clear_screen()             -- Clear the screen.
 ;;
 
 
 
 ;============================================================= _draw_ui() ====
-;; Draw the user interface on the screen
+;; Draw the user interface on the screen.
 
 ;; The UI looks like that:
 ;; +------------------------------------+
@@ -204,6 +207,50 @@ int 0x10
 ;Restore registers
 pop dx
 pop bx
+pop ax
+
+ret
+
+
+
+;======================================================== _input_letter() ====
+;; Wait for input and return an uppercase letter.
+
+;; Usage:
+;; call _input_letter
+
+;; Returns
+LETTER db 0 ;An upper case letter
+
+
+_input_letter:
+
+;Backup registers
+push ax
+
+;Wait for input
+mov ax, 0x0000
+int 0x16
+
+;Check if the char is an upper case letter
+cmp al, 'A'          ; al < 'A'    -> _input_letter
+jl  _input_letter    ;
+cmp al, 'Z'          ; al <= 'Z'   -> end_input_letter
+jle end_input_letter ;
+
+;Check if the char is a lower case letter
+cmp al, 'a'          ; al < 'a'    -> _input_letter
+jl  _input_letter    ;
+cmp al, 'z'          ; al > 'z'    -> _input_letter
+jg  _input_letter    ;
+
+;The char is a lowercase letter, convert it into uppercase
+sub al, 0x20
+
+end_input_letter:
+mov LETTER, al
+
+;Restore registers
 pop ax
 
 ret

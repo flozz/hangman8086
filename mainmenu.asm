@@ -72,7 +72,6 @@ main_menu_st_snd:
 ;The main menu
 main_menu_st:
     ;Wait for input
-    main_menu_input:
     mov ax, 0x0000
     int 0x16
 
