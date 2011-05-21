@@ -41,7 +41,7 @@
 ;;     _print_gibbet        -- Print the gibbet with remaining lives.
 ;;     _print_gword         -- Print the guessed word (e.g. H _ _ _ _ _ N).
 ;;     _print_tried_letters -- Print the letters that the player have already
-;;                             tried (e.g. AUIOW).
+;;                             tried (e.g. A U I O W).
 ;;
 
 
@@ -76,9 +76,19 @@ push cx
 push dx
 
 ;TODO
-;call _draw_ui
-;call _game_init
-;...
+call _draw_ui
+call _game_init
+
+play_main_loop:
+    call _print_gword
+    call _print_tried_letters
+    call _print_gibbet
+
+    call _input_letter
+
+    ;TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;update, check,...
+
 ;Set game status
 
 ;Restore registers
@@ -120,12 +130,34 @@ push bx
 push cx
 push dx
 
-;TODO
-;Put the WORD in play_word
 ;Put the length of WORD in play_word_len
-;Put the first letter, the last letter and underscores in play_gword
+mov ax, WORD
+mov STRLEN_STR, ax
+call _strlen
+mov al, STRLEN_LEN
+mov play_word_len, al
+
+;Put the WORD in play_word
+mov ax, WORD
+mov MEMCPY_SRC, ax
+mov MEMCPY_DEST, offset play_word
+mov al, STRLEN_LEN
+mov MEMCPY_LEN, al
+call _memcpy
+
 ;Fill play_tried_letters with spaces
+mov bx, offset play_tried_letters
+mov cl, play_tried_len
+
+game_init_sploop:
+    mov [bx], ' '
+    inc bx
+    dec cl
+    cmp cl, 0
+    jne game_init_sploop
+
 ;Init the play_lives to 10 (with gibbet) or 6 (without gibbet)
+mov play_lives, 10 ;FIXME ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Restore registers
 pop dx
@@ -152,7 +184,35 @@ push bx
 push cx
 push dx
 
-;TODO
+;calculate the adresse of the gibbet that fit with the remaining lives
+mov ah, 0
+mov al, GIBBET_WIDTH
+mov bh, 0
+mov bl, GIBBET_HEIGHT
+mul bl
+
+mov bx, 10
+sub bl, play_lives
+mul bl
+
+mov bx, offset HANGMAN_LIVES_10
+add bx, ax
+
+;Print the guibet
+mov cl, GIBBET_HEIGHT
+mov ah, 0x09
+mov dx, bx
+mov bx, GIBBET_WIDTH
+mov POS_X, COLS - GIBBET_WIDTH - 2
+mov POS_Y, (ROWS - GIBBET_HEIGHT) / 2 + (header_height - 1) / 2
+print_gibbet_loop:
+    call _move_cursor
+    int 0x21 ;print
+    add dx, bx
+    inc POS_Y
+    dec cl
+    cmp cl, 0
+    jne print_gibbet_loop
 
 ;Restore registers
 pop dx
@@ -179,7 +239,64 @@ push bx
 push cx
 push dx
 
-;TODO
+;Copy the word in play_gword
+mov ax, WORD
+mov MEMCPY_SRC, ax
+mov MEMCPY_DEST, offset play_gword
+mov al, STRLEN_LEN
+mov MEMCPY_LEN, al
+call _memcpy
+
+;Make the string
+mov cl, play_word_len
+sub cl, 2
+mov bx, offset play_gword
+inc bx
+
+print_gword_mkloop:
+    mov al, [bx]
+    mov ch, play_tried_len
+    push bx
+    mov bx, offset play_tried_letters
+    print_gword_mkloop1:
+        mov ah, [bx]
+        cmp ah, al
+        je print_gword_lil
+        dec ch
+        inc bx
+        cmp ch, 0
+        jne print_gword_mkloop1
+
+    print_gword_lnil:
+        pop bx
+        mov [bx], '_'
+        jmp print_gword_mkloopend
+
+    print_gword_lil:
+        pop bx
+
+    print_gword_mkloopend:
+        dec cl
+        inc bx
+        cmp cl, 0
+        jne print_gword_mkloop
+
+mov POS_Y, ROWS / 2 + (header_height - 1) - 5
+mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
+mov al, play_word_len
+sub POS_X, al
+mov bx, offset play_gword
+mov cl, play_word_len
+mov ah, 0x02
+print_gword_prnloop:
+    call _move_cursor
+    mov dl, [bx]
+    int 0x21 ;print
+    inc bx
+    add POS_X, 2
+    dec cl
+    cmp cl, 0
+    jne print_gword_prnloop
 
 ;Restore registers
 pop dx
@@ -192,7 +309,7 @@ ret
 
 
 ;================================================= _print_tried_letters() ====
-;; Print the letters that the player have already tried (e.g. AUIOW).
+;; Print the letters that the player have already tried (e.g. A U I O W).
 
 ;; Usage:
 ;; call _print_tried_letters
@@ -206,7 +323,32 @@ push bx
 push cx
 push dx
 
-;TODO
+;Calculate the cursor position
+mov POS_Y, ROWS / 2 + (header_height - 1) - 2
+mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
+mov al, 10
+sub al, play_lives
+sub POS_X, al
+
+;print letters
+mov cl, 10
+sub cl, play_lives
+cmp cl, 0
+je  print_gword_end
+mov bx, offset play_tried_letters
+mov ah, 0x02
+
+prnletters_loop:
+    call _move_cursor
+    mov dl, [bx]
+    int 0x21 ;print
+    inc bx
+    add POS_X, 2
+    dec cl
+    cmp cl, 0
+    jne prnletters_loop
+
+print_gword_end:
 
 ;Restore registers
 pop dx
