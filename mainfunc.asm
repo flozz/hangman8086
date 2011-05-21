@@ -45,6 +45,11 @@
 ;;     _input_letter()             -- Wait for input and return an uppercase
 ;;                                    letter.
 ;;     _clear_screen()             -- Clear the screen.
+;;     _memcpy(MEMCPY_SRC,         -- Copy bytes to an other place in the
+;;             MEMCPY_DEST,           memory.
+;;             MEMCPY_LEN)
+;;     _strlen(STRLEN_STR)         -- Count the number of bytes that compose
+;;                                    a string.
 ;;
 
 
@@ -148,7 +153,7 @@ ret
 ;; mov HELP_STR, offset <string_label>
 ;; call _print_help
 
-;; Function arg
+;; Function arg:
 HELP_STR dw 0 ; The adresse of the help string to print, the string must end
               ; with a '$' char and its length can't be higher than 78 chars;
 
@@ -219,7 +224,7 @@ ret
 ;; Usage:
 ;; call _input_letter
 
-;; Returns
+;; Returns:
 LETTER db 0 ;An upper case letter
 
 
@@ -289,6 +294,112 @@ call _move_cursor
 ;Restore registers
 pop dx
 pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;=========================== _memcpy(MEMCPY_SRC, MEMCPY_DEST, MEMCPY_LEN) ====
+;; Copy bytes to an other place in the memory.
+
+;; Usage:
+;; mov MEMCPY_SRC, offset <src>
+;; mov MEMCPY_DEST, offset <dest>
+;; mov MEMCPY_LEN, <len>
+;; call _memcpy
+
+;; Function args:
+MEMCPY_SRC  dw 0  ; The source address
+MEMCPY_DEST dw 0  ; The destination address
+MEMCPY_LEN  db 0  ; The number of bytes to copy
+
+
+_memcpy:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Push the source bytes in the stack
+mov ax, 0
+mov bx, MEMCPY_SRC
+mov cl, MEMCPY_LEN
+
+memcpy_pshloop:
+    mov al, [bx]
+    push ax
+    inc bx
+    dec cl
+    cmp cl, 0
+    jne memcpy_pshloop
+
+;Pop the bytes from the stack to the destination
+mov bx, MEMCPY_DEST
+mov ah, 0
+mov al, MEMCPY_LEN
+add bx, ax
+dec bx
+
+mov cl, MEMCPY_LEN
+
+memcpy_poploop:
+    pop ax
+    mov [bx], al
+    dec bx
+    dec cl
+    cmp cl, 0
+    jne memcpy_poploop
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;==================================================== _strlen(STRLEN_STR) ====
+;; Count the number of bytes that compose a string.
+
+;; NOTE: The string must end with the '$' char !
+
+;; Usage:
+;; mov STRLEN_STR, offset <str>
+;; call _strlen
+
+;; Function args:
+STRLEN_STR  dw 0  ; The address of the string
+
+;; Returns:
+STRLEN_LEN  db 0  ; The len of the string
+
+
+_strlen:
+
+;Backup registers
+push ax
+push bx
+
+mov bx, STRLEN_STR
+mov STRLEN_LEN, 0
+
+strlen_loop:
+    mov al, [bx]
+    cmp al, '$'
+    je  strlen_end
+    inc STRLEN_LEN
+    inc bx
+    jmp strlen_loop
+
+strlen_end:
+
+;Restore registers
 pop bx
 pop ax
 
