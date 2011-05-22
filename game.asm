@@ -400,15 +400,25 @@ push bx
 push cx
 push dx
 
+;Calculate the length of the string
+mov cl, 0
+mov bx, offset play_tried_letters
+prn_tried_strlen:
+    cmp [bx], ' '
+    je  prn_tried_strlen_end
+    inc bx
+    inc cl
+    jmp prn_tried_strlen
+prn_tried_strlen_end:
+
 ;Calculate the cursor position
 mov POS_Y, ROWS / 2 + (header_height - 1) - 2
-mov POS_X, COLS / 2 - GIBBET_WIDTH + 3 ;FIXME  not centered...
-mov al, 10
-sub al, play_lives
-sub POS_X, al
+mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
+sub POS_X, cl
 
 ;print letters
-mov cl, play_tried_len
+cmp cl, 0
+je  prn_tried_end
 mov bx, offset play_tried_letters
 mov ah, 0x02
 
@@ -422,7 +432,7 @@ prnletters_loop:
     cmp cl, 0
     jne prnletters_loop
 
-print_gword_end:
+prn_tried_end:
 
 ;Restore registers
 pop dx
