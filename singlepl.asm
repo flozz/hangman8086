@@ -56,11 +56,32 @@ push bx
 push cx
 push dx
 
-;TODO  Get a random word from the dict
+;Get a random word from the dict
+    ;"Random" number
+    mov ah, 0x2C ; get system time
+    int 0x21     ;
+    mov ah, 0
+    mov al, dh   ; seconds
+    mov bl, cl   ; minutes
+    mul bl
+    mov ah, 0
+    mov bl, WORD_LIST_LEN
+    idiv bl
+
+    ;RAND * WORD_LEN
+    mov al, ah
+    mov ah, 0
+    mov bl, WORD_LEN
+    mul bl
+
+    ;Adress of the word
+    mov bx, offset WORD_LIST
+    add bx, ax
+
 ;TODO  Ask the player name
 
 mov PLAYER, offset sp_player_name
-mov WORD, offset sp_word
+mov WORD, bx
 call _play
 
 ;Restore registers
