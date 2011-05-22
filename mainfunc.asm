@@ -299,15 +299,15 @@ cmp al, KB_ENTER
 je  end_input_letter
 
 ;Check if the char is an upper case letter
-cmp al, 'A'          ; al < 'A'    -> _input_letter
+cmp al, 'A'          ; al < 'A'    -> input_letter_st
 jl  input_letter_st  ;
 cmp al, 'Z'          ; al <= 'Z'   -> end_input_letter
 jle end_input_letter ;
 
 ;Check if the char is a lower case letter
-cmp al, 'a'          ; al < 'a'    -> _input_letter
+cmp al, 'a'          ; al < 'a'    -> input_letter_st
 jl  input_letter_st  ;
-cmp al, 'z'          ; al > 'z'    -> _input_letter
+cmp al, 'z'          ; al > 'z'    -> input_letter_st
 jg  input_letter_st  ;
 
 ;The char is a lowercase letter, convert it into uppercase

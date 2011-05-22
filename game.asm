@@ -75,21 +75,98 @@ push bx
 push cx
 push dx
 
-;TODO
 call _draw_ui
 call _game_init
 
+mov GAME_STATUS, GAME_STATUS_LOOSE
+
 play_main_loop:
+    call _clear_working
     call _print_gword
+
+    ;Check if the play win
+    ;for checking we search underscors in play_gword... It is not very
+    ;pretty but it works...
+    play_check_win:
+    mov cl, play_word_len
+    mov bx, offset play_gword
+    play_check_win_loop:
+        cmp [bx], '_'
+        je  play_check_win_end ;not won yet
+        inc bx
+        dec cl
+        cmp cl, 0
+        jne play_check_win_loop
+        ;The player win !
+        mov GAME_STATUS, GAME_STATUS_WIN
+        jmp play_end
+    play_check_win_end:
+
     call _print_tried_letters
     call _print_gibbet
 
     call _input_letter
 
-    ;TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;update, check,...
+    ;Check fo special keys
+    cmp LETTER, KB_ENTER ;skip enter
+    je  play_main_loop
+    cmp LETTER, KB_BKSP  ;skip backspace
+    je  play_main_loop
+    cmp LETTER, KB_ESC   ;stop with esc
+    je  play_end
 
-;Set game status
+    ;Check if the player have already tried this letter
+    mov cl, play_tried_len
+    mov bx, offset play_tried_letters
+    mov al, LETTER
+    play_ckeck_tried:
+        cmp [bx], al
+        je play_main_loop ;Letter already in the list -> play_main_loop
+        inc bx
+        dec cl
+        cmp cl, 0
+        jne play_ckeck_tried
+
+    ;The letter is not in the list (play_tried_letters), so we add it
+    mov cl, play_tried_len
+    mov bx, offset play_tried_letters
+    mov al, LETTER
+    play_add_letter:
+        cmp [bx], ' ' ;Search a space
+        je play_add_letter_add
+        inc bx
+        dec cl
+        cmp cl, 0
+        jne play_add_letter
+        jmp play_add_letter_end ;Something is wrong... no more place !
+        play_add_letter_add:
+            mov [bx], al
+        play_add_letter_end:
+
+    ;Check if the letter is in the word
+    mov cl, play_word_len
+    sub cl, 2
+    mov bx, offset play_word
+    inc bx
+    mov al, LETTER
+    play_check_word:
+        cmp [bx], al
+        je play_check_word_end
+        inc bx
+        dec cl
+        cmp cl, 0
+        jne play_check_word
+        ;The letter is not in the word
+        dec play_lives
+        play_check_word_end:
+
+    ;Check the lives
+    cmp play_lives, 0
+    je  play_end ;loose
+
+    jmp play_main_loop
+
+play_end:
 
 ;Restore registers
 pop dx
@@ -325,16 +402,13 @@ push dx
 
 ;Calculate the cursor position
 mov POS_Y, ROWS / 2 + (header_height - 1) - 2
-mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
+mov POS_X, COLS / 2 - GIBBET_WIDTH + 3 ;FIXME  not centered...
 mov al, 10
 sub al, play_lives
 sub POS_X, al
 
 ;print letters
-mov cl, 10
-sub cl, play_lives
-cmp cl, 0
-je  print_gword_end
+mov cl, play_tried_len
 mov bx, offset play_tried_letters
 mov ah, 0x02
 
