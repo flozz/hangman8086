@@ -37,13 +37,14 @@
 ;;
 ;; Index:
 ;;     _draw_ui()                  -- Draw the user interface on the screen.
+;;     _clear_working              -- Clear the working part of the screen.
 ;;     _print_header()             -- Print the HANGMAN logo on the screen.
 ;;     _print_help(HELP_STR)       -- Print the help message on the bottom of
 ;;                                    the screen.
 ;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
 ;;     _input_letter()             -- Wait for input and return an uppercase
-;;                                    letter.
+;;                                    letter, KB_ESC, KB_BKSP or KB_ENTER.
 ;;     _clear_screen()             -- Clear the screen.
 ;;     _memcpy(MEMCPY_SRC,         -- Copy bytes to an other place in the
 ;;             MEMCPY_DEST,           memory.
@@ -86,7 +87,7 @@ push bx
 push cx
 push dx
 
-;Draw the blue part
+;Draw the header and help parts
 mov ah, 0x07
 mov al, 0            ; Clear
 mov bh, COLOR_HEADER ; Color
@@ -95,7 +96,7 @@ mov dh, ROWS         ;       |           |
 mov dl, COLS         ;       +-----------+ (COLS,ROWS)
 int 0x10
 
-;Draw the black part
+;Draw the working part
 mov ah, 0x07
 mov al, 0                ; Clear
 mov bh, COLOR_ACTIVE     ; Color
@@ -107,6 +108,57 @@ int 0x10
 
 ;Draw the header
 call _print_header
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;======================================================= _clear_working() ====
+;; Clear the working part of the screen.
+
+;; +------------------------------------+
+;; |                                    |
+;; |           H A N G M A N            |
+;; |                                    |
+;; +------------------------------------+
+;; |                                    | \
+;; |                                    |  |
+;; |                                    |  | Clear
+;; |        Menu/Game/Animation         |  | that
+;; |                                    |  | part
+;; |                                    |  |
+;; |                                    | /
+;; +------------------------------------+
+;; | Informations/help                  |
+;; +------------------------------------+
+
+;; Usage:
+;; call _clear_working
+
+
+_clear_working:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Clear the working part
+mov ah, 0x07
+mov al, 0                ; Clear
+mov bh, COLOR_ACTIVE     ; Color
+mov ch, header_height+1  ; (0,header_height+1) +-----------+
+mov cl, 0                ;                     |           |
+mov dh, ROWS-2           ;                     |           |
+mov dl, COLS             ;                     +-----------+ (COLS,ROWS-2)
+int 0x10
 
 ;Restore registers
 pop dx
@@ -219,7 +271,7 @@ ret
 
 
 ;======================================================== _input_letter() ====
-;; Wait for input and return an uppercase letter.
+;; Wait for input and return an uppercase letter, KB_ESC, KB_BKSP or KB_ENTER.
 
 ;; Usage:
 ;; call _input_letter
@@ -233,21 +285,30 @@ _input_letter:
 ;Backup registers
 push ax
 
+input_letter_st:
 ;Wait for input
 mov ax, 0x0000
 int 0x16
 
+;Check if it is a special char (Esc, BkSp, Enter)
+cmp al, KB_ESC
+je  end_input_letter
+cmp al, KB_BKSP
+je  end_input_letter
+cmp al, KB_ENTER
+je  end_input_letter
+
 ;Check if the char is an upper case letter
 cmp al, 'A'          ; al < 'A'    -> _input_letter
-jl  _input_letter    ;
+jl  input_letter_st  ;
 cmp al, 'Z'          ; al <= 'Z'   -> end_input_letter
 jle end_input_letter ;
 
 ;Check if the char is a lower case letter
 cmp al, 'a'          ; al < 'a'    -> _input_letter
-jl  _input_letter    ;
+jl  input_letter_st  ;
 cmp al, 'z'          ; al > 'z'    -> _input_letter
-jg  _input_letter    ;
+jg  input_letter_st  ;
 
 ;The char is a lowercase letter, convert it into uppercase
 sub al, 0x20
@@ -259,6 +320,12 @@ mov LETTER, al
 pop ax
 
 ret
+
+
+;Constants
+KB_ESC   equ 0x1B
+KB_BKSP  equ 0x08
+KB_ENTER equ 0x0D
 
 
 
