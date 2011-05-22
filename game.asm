@@ -38,10 +38,12 @@
 ;; Index:
 ;;     _play(WORD, PLAYER)  -- Play to hangman.
 ;;     _game_init()         -- Initialize the game.
-;;     _print_gibbet        -- Print the gibbet with remaining lives.
-;;     _print_gword         -- Print the guessed word (e.g. H _ _ _ _ _ N).
+;;     _print_gibbet()      -- Print the gibbet with remaining lives.
+;;     _print_gword()       -- Print the guessed word (e.g. H _ _ _ _ _ N).
 ;;     _print_tried_letters -- Print the letters that the player have already
 ;;                             tried (e.g. A U I O W).
+;;     _game_anima()        -- Displays an animation when the player loose
+;;                             or win.
 ;;
 
 
@@ -175,6 +177,8 @@ play_main_loop:
     jmp play_main_loop
 
 play_end:
+
+call _game_anima
 
 ;Restore registers
 pop dx
@@ -453,5 +457,101 @@ pop bx
 pop ax
 
 ret
+
+
+
+;================================================= _print_tried_letters() ====
+;; Displays an animation when the player loose or win.
+
+;; Usage:
+;; call _game_anima
+
+
+_game_anima:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+call _draw_ui
+
+;TODO  print the help message
+
+;print the word
+mov cl, play_word_len
+mov bx, offset play_word
+mov POS_X, COLS/2
+sub POS_X, cl
+mov POS_Y, header_height + GIBBET_HEIGHT + 5
+mov ah, 0x02
+game_anima_pnrloop:
+    call _move_cursor
+    mov dl, [bx]
+    int 0x21 ;print
+    inc bx
+    add POS_X, 2
+    dec cl
+    cmp cl, 0
+    jne game_anima_pnrloop
+
+;loop until the player press any key
+game_anima_loop0:
+mov ch, 4
+cmp GAME_STATUS, GAME_STATUS_WIN
+je  game_anima_win
+mov dx, offset HANGMAN_GAMEOVER_00
+jmp game_anima_loop1
+game_anima_win:
+mov dx, offset HANGMAN_GOODGAME_00
+game_anima_loop1:
+    ;Check for keystroke
+    mov ah, 0x01
+    int 0x16
+    jnz game_anima_end
+
+    ;print the animation (step 00)
+    mov cl, GIBBET_HEIGHT
+    mov ah, 0x09
+    mov POS_X, (COLS - GIBBET_WIDTH) / 2
+    mov POS_Y, header_height + 3
+    game_anima_prnloop00:
+        call _move_cursor
+        int 0x21 ;Print
+        inc POS_Y
+        dec cl
+        add dx, GIBBET_WIDTH
+        cmp cl, 0
+        jne game_anima_prnloop00
+
+    ;sleep
+    push cx
+    mov ah, 0x86
+    mov cx, 3
+    int 0x15
+    pop cx
+
+    ;add dx, GIBBET_WIDTH
+    dec ch
+    cmp ch, 0
+    je  game_anima_loop0
+
+    jmp game_anima_loop1
+
+game_anima_end:
+
+;flush input butffer
+mov ah, 0x00
+int 0x16
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
 
 

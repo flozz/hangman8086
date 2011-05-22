@@ -125,7 +125,7 @@ main_menu_st:
         cmp main_menu_selected, MAIN_MENU_SINGLE_PLAYER
         jne main_menu_sp_end
         call _single_player
-        jmp main_menu_st_refresh
+        jmp _main_menu
         main_menu_sp_end:
 
         ;Quit

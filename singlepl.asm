@@ -94,6 +94,5 @@ ret
 
 
 sp_player_name db "OMICRON "     ;FIXME
-sp_word        db "DEVELOPMENT$" ;FIXME
 
 
