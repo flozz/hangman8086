@@ -76,6 +76,8 @@ push cx
 push dx
 
 call _draw_ui
+mov HELP_STR, offset game_help
+call _print_help
 call _game_init
 
 mov GAME_STATUS, GAME_STATUS_LOOSE
@@ -151,13 +153,19 @@ play_main_loop:
     mov al, LETTER
     play_check_word:
         cmp [bx], al
-        je play_check_word_end
+        je play_check_word_ok
         inc bx
         dec cl
         cmp cl, 0
         jne play_check_word
         ;The letter is not in the word
         dec play_lives
+        mov SOUND, offset SND_GAME_BAD_LTTR
+        call _play_sound
+        jmp play_check_word_end
+        play_check_word_ok:
+        mov SOUND, offset SND_GAME_GOOD_LTTR
+        call _play_sound
         play_check_word_end:
 
     ;Check the lives
@@ -187,6 +195,10 @@ play_tried_letters db  "--------------------------"
 play_tried_len     equ 26
 
 play_lives         db  0
+
+;Help
+game_help  db 0xDA,"A-Z",0xBF," Try a letter                                 "
+           db "         ",0xDA,"Esc",0xBF," End the game$"
 
 
 

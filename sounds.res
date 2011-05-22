@@ -66,3 +66,17 @@ SND_MENU_VALID dw    2000, 01
                dw       0,  0
 
 
+
+;=================================================================== Game ====
+;                       Sound, duration
+SND_GAME_GOOD_LTTR dw    4000, 01
+                   dw    2000, 01
+                   dw    1000, 01
+                   dw       0,  0
+
+
+;                      Sound, duration
+SND_GAME_BAD_LTTR dw    9000, 01
+                  dw       0,  0
+
+
