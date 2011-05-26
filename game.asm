@@ -460,7 +460,7 @@ ret
 
 
 
-;================================================= _print_tried_letters() ====
+;========================================================== _game_anima() ====
 ;; Displays an animation when the player loose or win.
 
 ;; Usage:
@@ -475,6 +475,17 @@ push bx
 push cx
 push dx
 
+;Play a sound
+cmp GAME_STATUS, GAME_STATUS_WIN
+je  game_anima_sndwin
+mov SOUND, offset SND_GAME_DIE
+jmp game_anima_sndend
+game_anima_sndwin:
+mov SOUND, offset SND_GAME_GG
+game_anima_sndend:
+call _play_sound
+
+;Draw the ui
 call _draw_ui
 
 ;TODO  print the help message
@@ -552,6 +563,5 @@ pop bx
 pop ax
 
 ret
-
 
 
