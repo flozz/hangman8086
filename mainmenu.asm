@@ -51,6 +51,11 @@
 
 _main_menu:
 
+;Flush the input buffer
+mov ah, 0x0C
+mov al, 0
+int 0x21
+
 ;Draw the UI
 call _draw_ui
 

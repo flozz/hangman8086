@@ -36,7 +36,7 @@
 ;; Contains the game functions.
 ;;
 ;; Index:
-;;     _play(WORD, PLAYER)  -- Play to hangman.
+;;     _play(WORD)          -- Play to hangman.
 ;;     _game_init()         -- Initialize the game.
 ;;     _print_gibbet()      -- Print the gibbet with remaining lives.
 ;;     _print_gword()       -- Print the guessed word (e.g. H _ _ _ _ _ N).
@@ -50,23 +50,23 @@
 
 GAME_STATUS_LOOSE equ 0
 GAME_STATUS_WIN   equ 1
+GAME_STATUS_ABORT equ 2
 
 
 
-;==================================================== _play(WORD, PLAYER) ====
+;============================================================ _play(WORD) ====
 ;; Play to hangman.
 
 ;; Usage:
 ;; mov WORD, offset <word>
-;; mov PLAYER, offset <playername>
 ;; call _play
 
 ;; Function args:
 WORD   dw 0 ;The adress of the word to guess.
-PLAYER dw 0 ;The adress of the player name.
 
 ;; Returns:
-GAME_STATUS db 0 ;The game status (GAME_STATUS_LOOSE, GAME_STATUS_WIN).
+GAME_STATUS db 0 ;The game status (GAME_STATUS_LOOSE, GAME_STATUS_WIN,
+                 ;GAME_STATUS_ABORT).
 
 
 _play:
@@ -88,6 +88,9 @@ play_main_loop:
     call _clear_working
     call _print_gword
 
+    call _print_tried_letters
+    call _print_gibbet
+
     ;Check if the play win
     ;for checking we search underscors in play_gword... It is not very
     ;pretty but it works...
@@ -103,11 +106,8 @@ play_main_loop:
         jne play_check_win_loop
         ;The player win !
         mov GAME_STATUS, GAME_STATUS_WIN
-        jmp play_end
+        jmp play_eog
     play_check_win_end:
-
-    call _print_tried_letters
-    call _print_gibbet
 
     call _input_letter
 
@@ -117,7 +117,7 @@ play_main_loop:
     cmp LETTER, KB_BKSP  ;skip backspace
     je  play_main_loop
     cmp LETTER, KB_ESC   ;stop with esc
-    je  play_end
+    je  play_abort
 
     ;Check if the player have already tried this letter
     mov cl, play_tried_len
@@ -172,13 +172,19 @@ play_main_loop:
 
     ;Check the lives
     cmp play_lives, 0
-    je  play_end ;loose
+    je  play_eog ;loose
 
     jmp play_main_loop
 
-play_end:
+play_eog:
 
 call _game_anima
+jmp play_end
+
+play_abort:
+mov GAME_STATUS, GAME_STATUS_ABORT
+
+play_end:
 
 ;Restore registers
 pop dx
@@ -488,7 +494,14 @@ call _play_sound
 ;Draw the ui
 call _draw_ui
 
-;TODO  print the help message
+;Print the help message
+mov HELP_STR, offset game_anima_help
+call _print_help
+
+;Flush the input buffer
+mov ah, 0x0C
+mov al, 0
+int 0x21
 
 ;print the word
 mov cl, play_word_len
@@ -552,9 +565,14 @@ game_anima_loop1:
 
 game_anima_end:
 
-;flush input butffer
+;Check the char
 mov ah, 0x00
 int 0x16
+cmp al, KB_ESC
+jne game_anima_chrend
+mov GAME_STATUS, GAME_STATUS_ABORT
+
+game_anima_chrend:
 
 ;Restore registers
 pop dx
@@ -563,5 +581,10 @@ pop bx
 pop ax
 
 ret
+
+
+;Help
+game_anima_help  db "Press any key to continue                          "
+                 db "         ",0xDA,"Esc",0xBF," End the game$"
 
 

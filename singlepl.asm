@@ -56,6 +56,7 @@ push bx
 push cx
 push dx
 
+sp_start:
 ;Get a random word from the dict
     ;"Random" number
     mov ah, 0x2C ; get system time
@@ -78,11 +79,15 @@ push dx
     mov bx, offset WORD_LIST
     add bx, ax
 
-;TODO  Ask the player name
-
-mov PLAYER, offset sp_player_name
 mov WORD, bx
 call _play
+
+;Check the game status
+cmp GAME_STATUS, GAME_STATUS_ABORT
+je  sp_end
+jmp sp_start
+
+sp_end:
 
 ;Restore registers
 pop dx
@@ -91,8 +96,5 @@ pop bx
 pop ax
 
 ret
-
-
-sp_player_name db "OMICRON "     ;FIXME
 
 
