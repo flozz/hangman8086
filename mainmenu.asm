@@ -36,20 +36,25 @@
 ;; Contains the functions of the main menu.
 ;;
 ;; Index:
-;;     _main_menu()       -- Display the main menu.
-;;     _draw_main_menu()  -- (Re)draw the main menu on the screen.
+;;     _main_menu()       -- Displays the main menu.
+;;     _draw_main_menu()  -- (Re)draws the main menu on the screen.
 ;;
 
 
 
 ;=========================================================== _main_menu() ====
-;; Display the main menu.
+;; Displays the main menu.
 
 ;; Using:
 ;; call _main_menu
 
 
 _main_menu:
+
+;Flush the input buffer
+mov ah, 0x0C
+mov al, 0
+int 0x21
 
 ;Draw the UI
 call _draw_ui
@@ -58,16 +63,19 @@ call _draw_ui
 mov HELP_STR, offset main_menu_help
 call _print_help
 
-;Draw the menu
-call _draw_main_menu
-
-jmp main_menu_st
+jmp main_menu_st_refresh
 
 ;Play a sound when the item change
 main_menu_st_snd:
     mov SOUND, offset SND_MENU_CH_ITEM
+    call _clear_working
     call _draw_main_menu
     call _play_sound
+    jmp main_menu_st
+
+main_menu_st_refresh:
+    call _clear_working
+    call _draw_main_menu
 
 ;The main menu
 main_menu_st:
@@ -118,19 +126,29 @@ main_menu_st:
         mov SOUND, offset SND_MENU_VALID
         call _play_sound
 
-        cmp main_menu_selected, 4      ;Exit
+        ;Single player
+        cmp main_menu_selected, MAIN_MENU_SINGLE_PLAYER
+        jne main_menu_sp_end
+        call _single_player
+        jmp _main_menu
+        main_menu_sp_end:
+
+        ;Quit
+        cmp main_menu_selected, MAIN_MENU_QUIT
         je main_menu_end
 
-        jmp main_menu_st
+        jmp main_menu_st_refresh
 
 main_menu_end:
+mov SOUND, offset SND_MENU_VALID
+call _play_sound
 
 ret
 
 
 
 ;=================================================== _draw_main_menu() ====
-;; (Re)draw the main menu on the screen.
+;; (Re)draws the main menu on the screen.
 
 ;; Using:
 ;; call _draw_main_menu
@@ -198,5 +216,11 @@ main_menu_items db "  Single Player$"
                 db "  Quit         $"
 main_menu_items_len  equ 16
 main_menu_items_numb equ 5
+
+MAIN_MENU_SINGLE_PLAYER equ 0
+MAIN_MENU_TWO_PLAYER    equ 1
+MAIN_MENU_OPTIONS       equ 2
+MAIN_MENU_SCORES        equ 3
+MAIN_MENU_QUIT          equ 4
 
 

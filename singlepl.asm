@@ -33,39 +33,67 @@
 
 
 ;;
-;; Contains the function that prints the startup screen.
+;; Contains the single player mode.
 ;;
 ;; Index:
-;;     _print_startup_screen() -- Prints the startup screen.
+;;     _single_player()            -- Play in single player mode.
 ;;
 
 
 
-;================================================ _print_startup_screen() ====
-;; Prints the startup screen.
+;======================================================= _single_player() ====
+;; Play in single player mode.
 
 ;; Usage:
-;; call _print_startup_screen
+;; call _single_player
 
 
-_print_startup_screen:
+_single_player:
 
-call _clear_screen
+;Backup registers
+push ax
+push bx
+push cx
+push dx
 
-mov POS_X, (COLS-startup_scr_len)/2
-mov POS_Y, ROWS-startup_scr_height-2
+sp_start:
+;Get a random word from the dict
+    ;"Random" number
+    mov ah, 0x2C ; Get system time
+    int 0x21     ;
+    mov ah, 0
+    mov al, dh   ; Seconds
+    mov bl, cl   ; Minutes
+    mul bl
+    mov ah, 0
+    mov bl, WORD_LIST_LEN
+    idiv bl
 
-mov ah, 0x09
-mov dx, offset startup_scr
+    ;RAND * WORD_LEN
+    mov al, ah
+    mov ah, 0
+    mov bl, WORD_LEN
+    mul bl
 
-;Header
-prn_st_scr_loop:
-    call _move_cursor
-    int 0x21
-    inc POS_Y
-    add dx, startup_scr_len
-    cmp POS_Y, startup_scr_height+(ROWS-startup_scr_height-2)
-    jne prn_st_scr_loop
+    ;Adress of the word
+    mov bx, offset WORD_LIST
+    add bx, ax
+
+mov WORD, bx
+call _play
+
+;Check the game status
+cmp GAME_STATUS, GAME_STATUS_ABORT
+je  sp_end
+jmp sp_start
+
+sp_end:
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
 
 ret
 

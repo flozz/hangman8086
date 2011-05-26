@@ -36,13 +36,13 @@
 ;; Contains the function for playing sounds.
 ;;
 ;; Index:
-;;     _play_sound() -- Play a sound.
+;;     _play_sound() -- Plays a sound.
 ;;
 
 
 
 ;========================================================== _play_sound() ====
-;; Play a sound.
+;; Plays a sound.
 
 ;; Usage:
 ;; mov SOUND, offset <mysound>

@@ -36,21 +36,33 @@
 ;; Contains the functions used everywhere in the program.
 ;;
 ;; Index:
-;;     _draw_ui()                  -- Draw the user interface on the screen.
-;;     _print_header()             -- Print the HANGMAN logo on the screen.
-;;     _print_help(HELP_STR)       -- Print the help message on the bottom of
+;;     _draw_ui()                  -- Draws the user interface on the screen.
+;;     _clear_working              -- Clears the working part of the screen.
+;;     _print_header()             -- Prints the HANGMAN logo on the screen.
+;;     _print_help(HELP_STR)       -- Prints the help message on the bottom of
 ;;                                    the screen.
-;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
+;;     _move_cursor(POS_X, POS_Y)  -- Moves the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
-;;     _input_letter()             -- Wait for input and return an uppercase
-;;                                    letter.
-;;     _clear_screen()             -- Clear the screen.
+;;     _input_letter()             -- Waits for input and returns an uppercase
+;;                                    letter, KB_ESC, KB_BKSP or KB_ENTER.
+;;     _clear_screen()             -- Clears the screen.
+;;     _memcpy(MEMCPY_SRC,         -- Copy bytes to an other place in the
+;;             MEMCPY_DEST,           memory.
+;;             MEMCPY_LEN)
+;;     _strlen(STRLEN_STR)         -- Counts the number of bytes that composes
+;;                                    a string.
 ;;
 
 
 
+KB_ESC   equ 0x1B
+KB_BKSP  equ 0x08
+KB_ENTER equ 0x0D
+
+
+
 ;============================================================= _draw_ui() ====
-;; Draw the user interface on the screen.
+;; Draws the user interface on the screen.
 
 ;; The UI looks like that:
 ;; +------------------------------------+
@@ -81,7 +93,7 @@ push bx
 push cx
 push dx
 
-;Draw the blue part
+;Draw the header and help parts
 mov ah, 0x07
 mov al, 0            ; Clear
 mov bh, COLOR_HEADER ; Color
@@ -90,7 +102,7 @@ mov dh, ROWS         ;       |           |
 mov dl, COLS         ;       +-----------+ (COLS,ROWS)
 int 0x10
 
-;Draw the black part
+;Draw the working part
 mov ah, 0x07
 mov al, 0                ; Clear
 mov bh, COLOR_ACTIVE     ; Color
@@ -113,8 +125,59 @@ ret
 
 
 
+;======================================================= _clear_working() ====
+;; Clears the working part of the screen.
+
+;; +------------------------------------+
+;; |                                    |
+;; |           H A N G M A N            |
+;; |                                    |
+;; +------------------------------------+
+;; |                                    | \
+;; |                                    |  |
+;; |                                    |  | Clear
+;; |        Menu/Game/Animation         |  | that
+;; |                                    |  | part
+;; |                                    |  |
+;; |                                    | /
+;; +------------------------------------+
+;; | Informations/help                  |
+;; +------------------------------------+
+
+;; Usage:
+;; call _clear_working
+
+
+_clear_working:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Clear the working part
+mov ah, 0x07
+mov al, 0                ; Clear
+mov bh, COLOR_ACTIVE     ; Color
+mov ch, header_height+1  ; (0,header_height+1) +-----------+
+mov cl, 0                ;                     |           |
+mov dh, ROWS-2           ;                     |           |
+mov dl, COLS             ;                     +-----------+ (COLS,ROWS-2)
+int 0x10
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+
 ;======================================================== _print_header() ====
-;; Print the HANGMAN logo on the screen
+;; Prints the HANGMAN logo on the screen
 
 ;; Usage:
 ;; call _print_header
@@ -142,14 +205,14 @@ ret
 
 
 ;================================================== _print_help(HELP_STR) ====
-;; Print the help message on the bottom of the screen.
+;; Prints the help message on the bottom of the screen.
 
 ;; Usage:
 ;; mov HELP_STR, offset <string_label>
 ;; call _print_help
 
-;; Function arg
-HELP_STR dw 0 ; The adresse of the help string to print, the string must end
+;; Function arg:
+HELP_STR dw 0 ; The address of the help string to print, the string must end
               ; with a '$' char and its length can't be higher than 78 chars;
 
 
@@ -178,7 +241,7 @@ ret
 
 
 ;============================================= _move_cursor(POS_X, POS_Y) ====
-;; Move the cursor on the screen to (POS_X, POS_Y).
+;; Moves the cursor on the screen to (POS_X, POS_Y).
 
 ;; Usage:
 ;; mov POS_X, <X_POS>
@@ -214,12 +277,12 @@ ret
 
 
 ;======================================================== _input_letter() ====
-;; Wait for input and return an uppercase letter.
+;; Waits for input and returns an uppercase letter, KB_ESC, KB_BKSP or KB_ENTER.
 
 ;; Usage:
 ;; call _input_letter
 
-;; Returns
+;; Returns:
 LETTER db 0 ;An upper case letter
 
 
@@ -228,21 +291,30 @@ _input_letter:
 ;Backup registers
 push ax
 
+input_letter_st:
 ;Wait for input
 mov ax, 0x0000
 int 0x16
 
+;Check if it is a special char (Esc, BkSp, Enter)
+cmp al, KB_ESC
+je  end_input_letter
+cmp al, KB_BKSP
+je  end_input_letter
+cmp al, KB_ENTER
+je  end_input_letter
+
 ;Check if the char is an upper case letter
-cmp al, 'A'          ; al < 'A'    -> _input_letter
-jl  _input_letter    ;
+cmp al, 'A'          ; al < 'A'    -> input_letter_st
+jl  input_letter_st  ;
 cmp al, 'Z'          ; al <= 'Z'   -> end_input_letter
 jle end_input_letter ;
 
 ;Check if the char is a lower case letter
-cmp al, 'a'          ; al < 'a'    -> _input_letter
-jl  _input_letter    ;
-cmp al, 'z'          ; al > 'z'    -> _input_letter
-jg  _input_letter    ;
+cmp al, 'a'          ; al < 'a'    -> input_letter_st
+jl  input_letter_st  ;
+cmp al, 'z'          ; al > 'z'    -> input_letter_st
+jg  input_letter_st  ;
 
 ;The char is a lowercase letter, convert it into uppercase
 sub al, 0x20
@@ -258,7 +330,7 @@ ret
 
 
 ;======================================================== _clear_screen() ====
-;; Clear the screen.
+;; Clears the screen.
 
 ;; Usage:
 ;; call _clear_screen
@@ -289,6 +361,112 @@ call _move_cursor
 ;Restore registers
 pop dx
 pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;=========================== _memcpy(MEMCPY_SRC, MEMCPY_DEST, MEMCPY_LEN) ====
+;; Copy bytes to an other place in the memory.
+
+;; Usage:
+;; mov MEMCPY_SRC, offset <src>
+;; mov MEMCPY_DEST, offset <dest>
+;; mov MEMCPY_LEN, <len>
+;; call _memcpy
+
+;; Function args:
+MEMCPY_SRC  dw 0  ; The source address
+MEMCPY_DEST dw 0  ; The destination address
+MEMCPY_LEN  db 0  ; The number of bytes to copy
+
+
+_memcpy:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Push the source bytes in the stack
+mov ax, 0
+mov bx, MEMCPY_SRC
+mov cl, MEMCPY_LEN
+
+memcpy_pshloop:
+    mov al, [bx]
+    push ax
+    inc bx
+    dec cl
+    cmp cl, 0
+    jne memcpy_pshloop
+
+;Pop the bytes from the stack to the destination
+mov bx, MEMCPY_DEST
+mov ah, 0
+mov al, MEMCPY_LEN
+add bx, ax
+dec bx
+
+mov cl, MEMCPY_LEN
+
+memcpy_poploop:
+    pop ax
+    mov [bx], al
+    dec bx
+    dec cl
+    cmp cl, 0
+    jne memcpy_poploop
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;==================================================== _strlen(STRLEN_STR) ====
+;; Counts the number of bytes that composes a string.
+
+;; NOTE: The string must end with the '$' char !
+
+;; Usage:
+;; mov STRLEN_STR, offset <str>
+;; call _strlen
+
+;; Function args:
+STRLEN_STR  dw 0  ; The address of the string
+
+;; Returns:
+STRLEN_LEN  db 0  ; The length of the string
+
+
+_strlen:
+
+;Backup registers
+push ax
+push bx
+
+mov bx, STRLEN_STR
+mov STRLEN_LEN, 0
+
+strlen_loop:
+    mov al, [bx]
+    cmp al, '$'
+    je  strlen_end
+    inc STRLEN_LEN
+    inc bx
+    jmp strlen_loop
+
+strlen_end:
+
+;Restore registers
 pop bx
 pop ax
 
