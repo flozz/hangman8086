@@ -33,7 +33,7 @@
 
 
 ;;
-;; Contains the ascii art of the game.
+;; Contains the ASCII art of the game.
 ;;
 
 

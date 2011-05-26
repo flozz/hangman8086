@@ -36,14 +36,14 @@
 ;; Contains the functions of the main menu.
 ;;
 ;; Index:
-;;     _main_menu()       -- Display the main menu.
-;;     _draw_main_menu()  -- (Re)draw the main menu on the screen.
+;;     _main_menu()       -- Displays the main menu.
+;;     _draw_main_menu()  -- (Re)draws the main menu on the screen.
 ;;
 
 
 
 ;=========================================================== _main_menu() ====
-;; Display the main menu.
+;; Displays the main menu.
 
 ;; Using:
 ;; call _main_menu
@@ -148,7 +148,7 @@ ret
 
 
 ;=================================================== _draw_main_menu() ====
-;; (Re)draw the main menu on the screen.
+;; (Re)draws the main menu on the screen.
 
 ;; Using:
 ;; call _draw_main_menu

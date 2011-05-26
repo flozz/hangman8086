@@ -1,6 +1,6 @@
 #The program name (8 char max)
 PROGRAM_NAME = hangman
-#The program ext (COM or EXE)
+#The program ext (com or exe, lowercase)
 PROGRAM_EXT = com
 
 

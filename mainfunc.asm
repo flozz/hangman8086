@@ -36,27 +36,33 @@
 ;; Contains the functions used everywhere in the program.
 ;;
 ;; Index:
-;;     _draw_ui()                  -- Draw the user interface on the screen.
-;;     _clear_working              -- Clear the working part of the screen.
-;;     _print_header()             -- Print the HANGMAN logo on the screen.
-;;     _print_help(HELP_STR)       -- Print the help message on the bottom of
+;;     _draw_ui()                  -- Draws the user interface on the screen.
+;;     _clear_working              -- Clears the working part of the screen.
+;;     _print_header()             -- Prints the HANGMAN logo on the screen.
+;;     _print_help(HELP_STR)       -- Prints the help message on the bottom of
 ;;                                    the screen.
-;;     _move_cursor(POS_X, POS_Y)  -- Move the cursor on the screen to
+;;     _move_cursor(POS_X, POS_Y)  -- Moves the cursor on the screen to
 ;;                                    (POS_X, POS_Y).
-;;     _input_letter()             -- Wait for input and return an uppercase
+;;     _input_letter()             -- Waits for input and returns an uppercase
 ;;                                    letter, KB_ESC, KB_BKSP or KB_ENTER.
-;;     _clear_screen()             -- Clear the screen.
+;;     _clear_screen()             -- Clears the screen.
 ;;     _memcpy(MEMCPY_SRC,         -- Copy bytes to an other place in the
 ;;             MEMCPY_DEST,           memory.
 ;;             MEMCPY_LEN)
-;;     _strlen(STRLEN_STR)         -- Count the number of bytes that compose
+;;     _strlen(STRLEN_STR)         -- Counts the number of bytes that composes
 ;;                                    a string.
 ;;
 
 
 
+KB_ESC   equ 0x1B
+KB_BKSP  equ 0x08
+KB_ENTER equ 0x0D
+
+
+
 ;============================================================= _draw_ui() ====
-;; Draw the user interface on the screen.
+;; Draws the user interface on the screen.
 
 ;; The UI looks like that:
 ;; +------------------------------------+
@@ -120,7 +126,7 @@ ret
 
 
 ;======================================================= _clear_working() ====
-;; Clear the working part of the screen.
+;; Clears the working part of the screen.
 
 ;; +------------------------------------+
 ;; |                                    |
@@ -171,7 +177,7 @@ ret
 
 
 ;======================================================== _print_header() ====
-;; Print the HANGMAN logo on the screen
+;; Prints the HANGMAN logo on the screen
 
 ;; Usage:
 ;; call _print_header
@@ -199,14 +205,14 @@ ret
 
 
 ;================================================== _print_help(HELP_STR) ====
-;; Print the help message on the bottom of the screen.
+;; Prints the help message on the bottom of the screen.
 
 ;; Usage:
 ;; mov HELP_STR, offset <string_label>
 ;; call _print_help
 
 ;; Function arg:
-HELP_STR dw 0 ; The adresse of the help string to print, the string must end
+HELP_STR dw 0 ; The address of the help string to print, the string must end
               ; with a '$' char and its length can't be higher than 78 chars;
 
 
@@ -235,7 +241,7 @@ ret
 
 
 ;============================================= _move_cursor(POS_X, POS_Y) ====
-;; Move the cursor on the screen to (POS_X, POS_Y).
+;; Moves the cursor on the screen to (POS_X, POS_Y).
 
 ;; Usage:
 ;; mov POS_X, <X_POS>
@@ -271,7 +277,7 @@ ret
 
 
 ;======================================================== _input_letter() ====
-;; Wait for input and return an uppercase letter, KB_ESC, KB_BKSP or KB_ENTER.
+;; Waits for input and returns an uppercase letter, KB_ESC, KB_BKSP or KB_ENTER.
 
 ;; Usage:
 ;; call _input_letter
@@ -322,15 +328,9 @@ pop ax
 ret
 
 
-;Constants
-KB_ESC   equ 0x1B
-KB_BKSP  equ 0x08
-KB_ENTER equ 0x0D
-
-
 
 ;======================================================== _clear_screen() ====
-;; Clear the screen.
+;; Clears the screen.
 
 ;; Usage:
 ;; call _clear_screen
@@ -432,7 +432,7 @@ ret
 
 
 ;==================================================== _strlen(STRLEN_STR) ====
-;; Count the number of bytes that compose a string.
+;; Counts the number of bytes that composes a string.
 
 ;; NOTE: The string must end with the '$' char !
 
@@ -444,7 +444,7 @@ ret
 STRLEN_STR  dw 0  ; The address of the string
 
 ;; Returns:
-STRLEN_LEN  db 0  ; The len of the string
+STRLEN_LEN  db 0  ; The length of the string
 
 
 _strlen:

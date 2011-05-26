@@ -37,10 +37,10 @@
 ;;
 ;; Index:
 ;;     _play(WORD)          -- Play to hangman.
-;;     _game_init()         -- Initialize the game.
-;;     _print_gibbet()      -- Print the gibbet with remaining lives.
-;;     _print_gword()       -- Print the guessed word (e.g. H _ _ _ _ _ N).
-;;     _print_tried_letters -- Print the letters that the player have already
+;;     _game_init()         -- Initializes the game.
+;;     _print_gibbet()      -- Prints the gibbet with remaining lives.
+;;     _print_gword()       -- Prints the guessed word (e.g. H _ _ _ _ _ N).
+;;     _print_tried_letters -- Prints the letters that the player have already
 ;;                             tried (e.g. A U I O W).
 ;;     _game_anima()        -- Displays an animation when the player loose
 ;;                             or win.
@@ -92,7 +92,7 @@ play_main_loop:
     call _print_gibbet
 
     ;Check if the play win
-    ;for checking we search underscors in play_gword... It is not very
+    ;For checking we search underscores in play_gword... It is not very
     ;pretty but it works...
     play_check_win:
     mov cl, play_word_len
@@ -109,14 +109,15 @@ play_main_loop:
         jmp play_eog
     play_check_win_end:
 
+    ;Get a letter
     call _input_letter
 
     ;Check fo special keys
-    cmp LETTER, KB_ENTER ;skip enter
+    cmp LETTER, KB_ENTER ;skip Enter
     je  play_main_loop
-    cmp LETTER, KB_BKSP  ;skip backspace
+    cmp LETTER, KB_BKSP  ;skip Backspace
     je  play_main_loop
-    cmp LETTER, KB_ESC   ;stop with esc
+    cmp LETTER, KB_ESC   ;stop with Escape
     je  play_abort
 
     ;Check if the player have already tried this letter
@@ -142,7 +143,7 @@ play_main_loop:
         dec cl
         cmp cl, 0
         jne play_add_letter
-        jmp play_add_letter_end ;Something is wrong... no more place !
+        jmp play_add_letter_end ;Something is wrong... No more place !
         play_add_letter_add:
             mov [bx], al
         play_add_letter_end:
@@ -172,7 +173,7 @@ play_main_loop:
 
     ;Check the lives
     cmp play_lives, 0
-    je  play_eog ;loose
+    je  play_eog ;Hanged x_x
 
     jmp play_main_loop
 
@@ -213,7 +214,7 @@ game_help  db 0xDA,"A-Z",0xBF," Try a letter                                 "
 
 
 ;=========================================================== _game_init() ====
-;; Initialize the game.
+;; Initializes the game.
 
 ;; NOTE: Called by the _play() function.
 
@@ -256,7 +257,7 @@ game_init_sploop:
     jne game_init_sploop
 
 ;Init the play_lives to 10 (with gibbet) or 6 (without gibbet)
-mov play_lives, 10 ;FIXME ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+mov play_lives, 10 ;FIXME
 
 ;Restore registers
 pop dx
@@ -269,7 +270,7 @@ ret
 
 
 ;======================================================== _print_gibbet() ====
-;; Print the gibbet with remaining lives.
+;; Prints the gibbet with remaining lives.
 
 ;; Usage:
 ;; call _print_gibbet
@@ -283,7 +284,7 @@ push bx
 push cx
 push dx
 
-;calculate the adresse of the gibbet that fit with the remaining lives
+;Calculate the address of the gibbet that fit with the remaining lives
 mov ah, 0
 mov al, GIBBET_WIDTH
 mov bh, 0
@@ -297,7 +298,7 @@ mul bl
 mov bx, offset HANGMAN_LIVES_10
 add bx, ax
 
-;Print the guibet
+;Print the gibbet
 mov cl, GIBBET_HEIGHT
 mov ah, 0x09
 mov dx, bx
@@ -306,7 +307,7 @@ mov POS_X, COLS - GIBBET_WIDTH - 2
 mov POS_Y, (ROWS - GIBBET_HEIGHT) / 2 + (header_height - 1) / 2
 print_gibbet_loop:
     call _move_cursor
-    int 0x21 ;print
+    int 0x21 ;Print
     add dx, bx
     inc POS_Y
     dec cl
@@ -324,7 +325,7 @@ ret
 
 
 ;========================================================= _print_gword() ====
-;; Print the guessed word (e.g. H _ _ _ _ _ N).
+;; Prints the guessed word (e.g. H _ _ _ _ _ N).
 
 ;; Usage:
 ;; call _print_gword
@@ -366,12 +367,12 @@ print_gword_mkloop:
         cmp ch, 0
         jne print_gword_mkloop1
 
-    print_gword_lnil:
+    print_gword_lnil: ;Letter Not In List
         pop bx
         mov [bx], '_'
         jmp print_gword_mkloopend
 
-    print_gword_lil:
+    print_gword_lil: ;Letter In List
         pop bx
 
     print_gword_mkloopend:
@@ -380,6 +381,7 @@ print_gword_mkloop:
         cmp cl, 0
         jne print_gword_mkloop
 
+;Print the word
 mov POS_Y, ROWS / 2 + (header_height - 1) - 5
 mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
 mov al, play_word_len
@@ -438,7 +440,7 @@ mov POS_Y, ROWS / 2 + (header_height - 1) - 2
 mov POS_X, COLS / 2 - GIBBET_WIDTH + 3
 sub POS_X, cl
 
-;print letters
+;Print letters
 cmp cl, 0
 je  prn_tried_end
 mov bx, offset play_tried_letters
@@ -503,7 +505,7 @@ mov ah, 0x0C
 mov al, 0
 int 0x21
 
-;print the word
+;Print the word
 mov cl, play_word_len
 mov bx, offset play_word
 mov POS_X, COLS/2
@@ -520,7 +522,7 @@ game_anima_pnrloop:
     cmp cl, 0
     jne game_anima_pnrloop
 
-;loop until the player press any key
+;Loop until the player press any key
 game_anima_loop0:
 mov ch, 4
 cmp GAME_STATUS, GAME_STATUS_WIN
@@ -535,7 +537,7 @@ game_anima_loop1:
     int 0x16
     jnz game_anima_end
 
-    ;print the animation (step 00)
+    ;Print the animation (step 00)
     mov cl, GIBBET_HEIGHT
     mov ah, 0x09
     mov POS_X, (COLS - GIBBET_WIDTH) / 2
@@ -549,14 +551,13 @@ game_anima_loop1:
         cmp cl, 0
         jne game_anima_prnloop00
 
-    ;sleep
+    ;Sleep
     push cx
     mov ah, 0x86
     mov cx, 3
     int 0x15
     pop cx
 
-    ;add dx, GIBBET_WIDTH
     dec ch
     cmp ch, 0
     je  game_anima_loop0

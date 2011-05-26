@@ -33,16 +33,16 @@
 
 
 ;;
-;; Contains the function that print the startup screen.
+;; Contains the function that prints the startup screen.
 ;;
 ;; Index:
-;;     _print_startup_screen() -- Print the startup screen.
+;;     _print_startup_screen() -- Prints the startup screen.
 ;;
 
 
 
 ;================================================ _print_startup_screen() ====
-;; Print the startup screen.
+;; Prints the startup screen.
 
 ;; Usage:
 ;; call _print_startup_screen

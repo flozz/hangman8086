@@ -59,11 +59,11 @@ push dx
 sp_start:
 ;Get a random word from the dict
     ;"Random" number
-    mov ah, 0x2C ; get system time
+    mov ah, 0x2C ; Get system time
     int 0x21     ;
     mov ah, 0
-    mov al, dh   ; seconds
-    mov bl, cl   ; minutes
+    mov al, dh   ; Seconds
+    mov bl, cl   ; Minutes
     mul bl
     mov ah, 0
     mov bl, WORD_LIST_LEN

@@ -66,7 +66,7 @@ include "game.asm"     ;Contains the game functions.
 include "singlepl.asm" ;Contains the single player mode.
 
 ;RESOURCE
-include "asciiart.res" ;Contains the ascii art of the game.
+include "asciiart.res" ;Contains the ASCII art of the game.
 include "sounds.res"   ;Contains the sounds.
 include "words.res"    ;Contains the word list for the single player mode.
 
