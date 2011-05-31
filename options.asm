@@ -73,9 +73,16 @@ call _draw_ui
 ;Print the help message
 mov HELP_STR, offset option_menu_help
 call _print_help
+jmp option_menu_refresh
+
+option_menu_snd:
+    mov SOUND, offset SND_MENU_CH_ITEM
+    call _draw_option_menu
+    call _play_sound
+    jmp option_menu_loop
 
 option_menu_refresh:
-call _draw_option_menu
+    call _draw_option_menu
 
 option_menu_loop:
     ;Wait for input
@@ -105,25 +112,26 @@ option_menu_loop:
         inc option_menu_selected
 
         cmp option_menu_selected, option_menu_items_numb
-        jnz option_menu_refresh
+        jnz option_menu_snd
 
         mov option_menu_selected, 0
-        jmp option_menu_refresh
+        jmp option_menu_snd
 
     ;Move up
     option_menu_moveup:
         dec option_menu_selected
 
         cmp option_menu_selected, -1
-        jnz option_menu_refresh
+        jnz option_menu_snd
 
         mov option_menu_selected, option_menu_items_numb
         dec option_menu_selected
-        jmp option_menu_refresh
+        jmp option_menu_snd
 
     ;Validate
     option_menu_validate:
-        nop ;TODO Sound
+        mov SOUND, offset SND_MENU_VALID
+        call _play_sound
 
         ;Gibbet
         cmp option_menu_selected, OPTION_MENU_GIBBET
