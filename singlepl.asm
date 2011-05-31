@@ -76,7 +76,13 @@ sp_start:
     mul bl
 
     ;Adress of the word
-    mov bx, offset WORD_LIST
+    cmp OPTION_DICT, OPTION_DICT_FR
+    je  sp_dict_fr
+    mov bx, offset WORD_LIST_EN
+    jmp sp_dict_end
+    sp_dict_fr:
+    mov bx, offset WORD_LIST_FR
+    sp_dict_end:
     add bx, ax
 
 mov WORD, bx
