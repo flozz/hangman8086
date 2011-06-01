@@ -257,7 +257,13 @@ game_init_sploop:
     jne game_init_sploop
 
 ;Init the play_lives to 10 (with gibbet) or 6 (without gibbet)
-mov play_lives, 10 ;FIXME
+cmp OPTION_GIBBET, OPTION_GIBBET_ON
+je  game_init_lives_gibbet_on
+mov play_lives, 6
+jmp game_init_lives_gibbet_end
+game_init_lives_gibbet_on:
+mov play_lives, 10
+game_init_lives_gibbet_end:
 
 ;Restore registers
 pop dx

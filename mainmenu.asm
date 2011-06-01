@@ -133,6 +133,13 @@ main_menu_st:
         jmp _main_menu
         main_menu_sp_end:
 
+        ;Options
+        cmp main_menu_selected, MAIN_MENU_OPTIONS
+        jne main_menu_option_end
+        call _option_menu
+        jmp _main_menu
+        main_menu_option_end:
+
         ;Quit
         cmp main_menu_selected, MAIN_MENU_QUIT
         je main_menu_end
