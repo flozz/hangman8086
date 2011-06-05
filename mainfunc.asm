@@ -286,7 +286,7 @@ ret
 ;; call _input_letter
 
 ;; Returns:
-LETTER db 0 ;An upper case letter
+LETTER db 0 ;An upper case letter (or KB_ESC, KB_BKSP, KB_ENTER).
 
 
 _input_letter:
@@ -647,4 +647,5 @@ if_wlen db 0
 ;Help
 if_help  db 0xDA,"A-Z",0xBF," Try a letter   ",0xDA,"Enter",0xBF," Validate"
          db "                                         $"
+
 

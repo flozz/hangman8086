@@ -66,6 +66,7 @@ include "stscreen.asm" ;Contains the function that print the startup screen.
 include "game.asm"     ;Contains the game functions.
 include "singlepl.asm" ;Contains the single player mode.
 include "options.asm"  ;Contains the options menu.
+include "modesel.asm"  ;Contains the mode selection menu.
 
 ;RESOURCE
 include "asciiart.res" ;Contains the ASCII art of the game.

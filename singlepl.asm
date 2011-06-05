@@ -56,6 +56,12 @@ push bx
 push cx
 push dx
 
+;Get the mode
+call _mode_menu
+
+cmp MODE, -1
+je  sp_end
+
 sp_start:
 ;Get a random word from the dict
     ;"Random" number
