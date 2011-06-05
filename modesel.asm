@@ -138,7 +138,7 @@ mode_menu_loop:
         ;Competition
         cmp mode_menu_selected, MODE_MENU_COMPETITION
         jnz mode_menu_competition_end
-        mov MODE, MODE_PRACTICE
+        mov MODE, MODE_COMPETITION
         jmp mode_menu_end
         mode_menu_competition_end:
 

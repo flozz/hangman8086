@@ -59,8 +59,23 @@ push dx
 ;Get the mode
 call _mode_menu
 
+;Back to the main menu if necessary
 cmp MODE, -1
 je  sp_end
+
+;Ask the players name if the competitino mode is selected
+cmp MODE, MODE_COMPETITION
+jne sp_plname_end
+mov IF_MSG, offset sp_msg_plname
+mov IF_MAXLEN, 8
+mov IF_EWD, 0
+call _input_field
+mov MEMCPY_SRC, offset IF_WORD
+mov MEMCPY_DEST, offset sp_plname
+mov MEMCPY_LEN, 8
+call _memcpy
+sp_plname_end:
+nop
 
 sp_start:
 ;Get a random word from the dict
@@ -108,5 +123,10 @@ pop bx
 pop ax
 
 ret
+
+
+;Datas
+sp_msg_plname db "Please enter your name:$"
+sp_plname db "--------"
 
 
