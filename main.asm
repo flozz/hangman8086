@@ -53,6 +53,7 @@ ROWS equ 25     ;Terminal height
 COLOR_HEADER equ 00101111b  ;Color of the Header an help area
 COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
 COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
+COLOR_FIELD  equ 00101111b  ;Color of the input fields
 
 
 

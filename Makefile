@@ -20,6 +20,7 @@ buildenv:
 	cd buildenv/ && ./makeenv.sh
 
 debug:
+	mkdir -p ./buildenv/MyBuild/
 	rm -f ./buildenv/MyBuild/*
 	cp *.asm *.res ./buildenv/MyBuild/
 	mv ./buildenv/MyBuild/main.asm ./buildenv/MyBuild/00main.asm

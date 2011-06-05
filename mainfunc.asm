@@ -37,7 +37,7 @@
 ;;
 ;; Index:
 ;;     _draw_ui()                  -- Draws the user interface on the screen.
-;;     _clear_working              -- Clears the working part of the screen.
+;;     _clear_working()            -- Clears the working part of the screen.
 ;;     _print_header()             -- Prints the HANGMAN logo on the screen.
 ;;     _print_help(HELP_STR)       -- Prints the help message on the bottom of
 ;;                                    the screen.
@@ -51,6 +51,9 @@
 ;;             MEMCPY_LEN)
 ;;     _strlen(STRLEN_STR)         -- Counts the number of bytes that composes
 ;;                                    a string.
+;;     _input_field(IF_MSG,        -- Display an input field.
+;;                  IF_MAXLEN,
+;;                  IF_EWD)
 ;;
 
 
@@ -472,4 +475,176 @@ pop ax
 
 ret
 
+
+
+;================================ _input_field(IF_MSG, IF_MAXLEN, IF_EWD) ====
+;; Display an input field.
+
+;; Usage:
+;; mov IF_MSG, offset <src>
+;; mov IF_MAXLEN, <len>
+;; mov IF_EWD, <0/1>
+;; call _input_field
+
+;; Function args:
+IF_MSG      dw 0  ; The message address (must end with '$')
+IF_MAXLEN   db 0  ; The maximum len of the input (max = 30)
+IF_EWD      db 0  ; End with $ ? (0 = False, 1 = True)
+
+;; Returns:
+IF_WORD     db "-------------------------------" ; The input word
+
+
+_input_field:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Clear the screen (draw the UI)
+call _draw_ui
+mov  HELP_STR, offset if_help
+call _print_help
+
+;Fill IF_WORD with spaces or $
+mov cl, 31
+mov bx, offset IF_WORD
+if_fill_word_loop:
+    cmp IF_EWD, 1 ; ' ' or '$' ?
+    je  if_fill_word_dollard
+    mov [bx], ' '
+    jmp if_fill_word_dollard_end
+    if_fill_word_dollard:
+    mov [bx], '$'
+    if_fill_word_dollard_end:
+    inc bx
+    dec cl
+    cmp cl, 0
+    jne if_fill_word_loop
+
+;Display the message
+    ;Center the message
+    mov ax, IF_MSG
+    mov STRLEN_STR, ax
+    call _strlen
+    mov ah, 0
+    mov al, STRLEN_LEN
+    mov bl, 2
+    div bl
+    mov ah, COLS / 2
+    sub ah, al
+    mov POS_X, ah
+    mov POS_Y, header_height
+    add POS_Y, 5
+    call _move_cursor
+    ;Print the message
+    mov ah, 0x09
+    mov dx, IF_MSG
+    int 0x21
+
+;Display the field
+    ;Center the field
+    mov ah, 0
+    mov al, IF_MAXLEN
+    mov bl, 2
+    div bl
+    mov ah, COLS / 2
+    sub ah, al
+    mov POS_X, ah
+    add POS_Y, 2
+    call _move_cursor
+    ;print the field
+    mov ah, 0x07
+    mov al, 0            ; Clear
+    mov bh, COLOR_FIELD  ; Color
+    mov ch, POS_Y        ; x1
+    mov cl, POS_X        ; x1
+    mov dh, POS_Y        ; y2
+    mov dl, POS_X        ; x2
+    add dl, IF_MAXLEN    ; ~~
+    inc dl               ; ~~
+    int 0x10
+
+mov if_wlen, 0
+
+;Intput field main loop
+if_loop:
+    call _input_letter
+    cmp LETTER, KB_ENTER ; Validate
+    je  if_loop_end
+    cmp LETTER, KB_ESC  ; skip esc
+    je  if_loop
+    cmp LETTER, KB_BKSP  ; Remove last letter
+    je  if_loop_bksp
+
+    ;Add the letter if the buffer is not full
+    mov ah, IF_MAXLEN
+    cmp if_wlen, ah
+    je  if_loop
+
+    ;buff
+    mov bx, offset IF_WORD
+    mov ah, 0
+    mov al, if_wlen
+    add bx, ax
+    mov al, LETTER
+    mov [bx], al
+    inc if_wlen
+
+    ;disp
+    inc POS_X
+    call _move_cursor
+    mov ah, 0x06
+    mov dl, LETTER
+    int 0x21
+
+    jmp if_loop
+
+    if_loop_bksp:
+    cmp if_wlen, 0 ;empty
+    je  if_loop
+
+    ;buff
+    mov bx, offset IF_WORD
+    mov ah, 0
+    mov al, if_wlen
+    add bx, ax
+    dec bx
+    cmp IF_EWD, 1
+    je  if_loop_ewd
+    mov [bx], ' '
+    jmp if_loop_ewdend
+    if_loop_ewd:
+    mov [bx], '$'
+    if_loop_ewdend:
+    dec if_wlen
+
+    ;disp
+    call _move_cursor
+    mov ah, 0x06
+    mov dl, ' '
+    int 0x21
+    dec POS_X
+
+    jmp if_loop
+
+    if_loop_end:
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+;Var
+if_wlen db 0
+
+;Help
+if_help  db 0xDA,"A-Z",0xBF," Try a letter   ",0xDA,"Enter",0xBF," Validate"
+         db "                                         $"
 
