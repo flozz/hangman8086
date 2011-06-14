@@ -143,7 +143,7 @@ WORD_LIST_EN  db  "ENGLISH$                 "
               db  "AGROCHEMICALS$           "
 
 
-WORD_LIST_FR  db  "CACHETTERAIENt$          "
+WORD_LIST_FR  db  "CACHETTERAIENT$          "
               db  "ECLAIRAGISTES$           "
               db  "QUADRILLERAIENT$         "
               db  "INTUSSUSCEPTION$         "

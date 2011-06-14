@@ -135,7 +135,7 @@ ret
 ;; +------------------------------------+
 ;; |                                    | \
 ;; |                                    |  |
-;; |                                    |  | Clear
+;; |                                    |  | Clears
 ;; |        Menu/Game/Animation         |  | that
 ;; |                                    |  | part
 ;; |                                    |  |
@@ -472,4 +472,28 @@ pop ax
 
 ret
 
+
+;Args:
+I2S_INT db 0 ;The number to convert
+
+;Returns
+I2S_STR db "0000"
+
+_inttostr:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;TODO
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
 
