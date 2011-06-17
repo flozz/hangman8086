@@ -51,6 +51,7 @@
 ;;             MEMCPY_LEN)
 ;;     _strlen(STRLEN_STR)         -- Counts the number of bytes that composes
 ;;                                    a string.
+;;     _inttostr(I2S_INT)          -- Convert integers into strings.
 ;;     _input_field(IF_MSG,        -- Display an input field.
 ;;                  IF_MAXLEN,
 ;;                  IF_EWD)
@@ -470,6 +471,62 @@ strlen_loop:
 strlen_end:
 
 ;Restore registers
+pop bx
+pop ax
+
+ret
+
+
+
+;===================================================== _inttostr(I2S_INT) ====
+;; Convert integers into strings.
+
+;; Usage:
+;; mov I2S_INT, <int>
+;; call _inttostr
+
+;; Args:
+I2S_INT dw 0 ;The integer to convert
+
+;; Return:
+I2S_STR dw "0000" ;The result string
+
+
+_inttostr:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;"Split" the number
+mov ax, I2S_INT
+mov bx, 10
+mov cx, 4
+i2s_split_loop:
+mov dx, 0
+div bx
+push dx
+dec cx
+cmp cx, 0
+jnz i2s_split_loop
+
+;Convert in string
+mov bx, offset I2S_STR
+mov cx, 4
+i2s_str_loop:
+pop ax
+add ax, '0'
+mov [bx], al
+inc bx
+dec cx
+cmp cx, 0
+jnz i2s_str_loop
+
+;Restore registers
+pop dx
+pop cx
 pop bx
 pop ax
 
