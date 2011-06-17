@@ -33,7 +33,7 @@
 
 
 ;;
-;; Contains the sounds.
+;; Contains the sounds ressources.
 ;;
 
 

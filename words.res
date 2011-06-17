@@ -33,7 +33,7 @@
 
 
 ;;
-;; Contains the word list for the single player mode.
+;; Contains the word lists for the single player mode.
 ;;
 
 
