@@ -133,6 +133,13 @@ main_menu_st:
         jmp _main_menu
         main_menu_sp_end:
 
+        ;Two players
+        cmp main_menu_selected, MAIN_MENU_TWO_PLAYERS
+        jne main_menu_tp_end
+        call _two_players
+        jmp _main_menu
+        main_menu_tp_end:
+
         ;Options
         cmp main_menu_selected, MAIN_MENU_OPTIONS
         jne main_menu_option_end
@@ -225,7 +232,7 @@ main_menu_items_len  equ 16
 main_menu_items_numb equ 5
 
 MAIN_MENU_SINGLE_PLAYER equ 0
-MAIN_MENU_TWO_PLAYER    equ 1
+MAIN_MENU_TWO_PLAYERS   equ 1
 MAIN_MENU_OPTIONS       equ 2
 MAIN_MENU_SCORES        equ 3
 MAIN_MENU_QUIT          equ 4

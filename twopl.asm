@@ -33,82 +33,92 @@
 
 
 ;;
-;; This is the main file of the program, contain the initialisation of the
-;; program, the includes, and the _main() function.
+;; Contains the two players mode.
+;;
+;; Index:
+;;     _two_players()            -- Play in two players mode.
 ;;
 
 
 
-;=================================================================== Init ====
-name "HANGMAN"  ;Output file name
-org  0x100      ;Set location counter to 0x100
-jmp _main       ;Jump to _main
+;======================================================= _two_players() ====
+;; Play in two players mode.
+
+;; Usage:
+;; call _two_players
 
 
+_two_players:
 
-;============================================================== Constants ====
-COLS equ 80     ;Terminal width
-ROWS equ 25     ;Terminal height
+;Backup registers
 
-COLOR_HEADER equ 00101111b  ;Color of the Header an help area
-COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
-COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
-COLOR_FIELD  equ 00101111b  ;Color of the input fields
+push ax
+push bx
+push cx
+push dx
+
+;Ask the first player's name
+
+mov IF_MSG, offset tp_msg_fplname
+mov IF_MAXLEN, 8
+mov IF_EWD, 0
+call _input_field
+mov MEMCPY_SRC, offset IF_WORD
+mov MEMCPY_DEST, offset tp_fplname
+mov MEMCPY_LEN, 8
+call _memcpy
+nop
+
+;Ask the second player's name
+
+mov IF_MSG, offset tp_msg_splname
+mov IF_MAXLEN, 8
+mov IF_EWD, 0
+call _input_field
+mov MEMCPY_SRC, offset IF_WORD
+mov MEMCPY_DEST, offset tp_splname
+mov MEMCPY_LEN, 8
+call _memcpy
+nop
+
+;Ask the first player's secret word
+
+mov MEMCPY_SRC, offset tp_fplname
+mov MEMCPY_DEST, offset tp_msg_fplword
+mov MEMCPY_LEN, 8
+call _memcpy
+mov IF_MSG, offset tp_msg_fplword
+mov IF_MAXLEN, 26
+mov IF_EWD, 1
+call _input_field
+mov MEMCPY_SRC, offset IF_WORD
+mov MEMCPY_DEST, offset tp_fplword
+mov MEMCPY_LEN, 26
+call _memcpy
+nop
+
+;Let's play !
+
+mov WORD, offset tp_fplword
+call _play
+
+;Restore registers
+
+pop dx
+pop cx
+pop bx
+pop ax
 
 
-
-;=============================================================== Includes ====
-;CODE
-include "mainfunc.asm" ;Contains the functions used everywhere in the program.
-include "mainmenu.asm" ;Contains the functions of the main menu.
-include "playsnd.asm"  ;Contains the function for playing sounds.
-include "stscreen.asm" ;Contains the function that print the startup screen.
-include "game.asm"     ;Contains the game functions.
-include "singlepl.asm" ;Contains the single player mode.
-include "twopl.asm"    ;Contains the two player mode.
-include "options.asm"  ;Contains the options menu.
-include "modesel.asm"  ;Contains the mode selection menu.
-
-;RESOURCE
-include "asciiart.res" ;Contains the ASCII art of the game.
-include "sounds.res"   ;Contains the sounds.
-include "words.res"    ;Contains the word list for the single player mode.
+ret
 
 
-
-;================================================================ _main() ====
-;; The main function.
-
-
-_main:
-
-;Set the video mode to 80x25, 16 colors, 8 pages
-mov ah, 0x00
-mov al, 0x03
-int 0x10
-
-;Hide the cursor
-mov ah, 0x01
-mov ch, 32
-int 0x10
-
-;Disable consol blinking and enable intensive colors
-mov ax, 0x1003
-mov bx, 0
-int 0x10
-
-;Let's go !
-call _print_startup_screen
-
-mov SOUND, offset SND_START
-call _play_sound
-
-call _main_menu
-
-call _clear_screen
-
-;Exit
-mov ah, 0x4C
-int 0x21
+;Datas
+tp_msg_fplname db "Please enter the first player's name:$"
+tp_fplname db "--------"
+tp_msg_splname db "Please enter the second player's name:$"
+tp_splname db "--------"
+tp_msg_fplword db "******** enter your secret word:$"
+tp_fplword db "-------------------------"
 
 
