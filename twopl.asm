@@ -81,7 +81,12 @@ mov MEMCPY_LEN, 8
 call _memcpy
 nop
 
-;Ask the first player's secret word
+;Game loop.
+
+mov cx, 3
+tp_game_loop:
+
+;Ask the first player's secret word.
 
 mov MEMCPY_SRC, offset tp_fplname
 mov MEMCPY_DEST, offset tp_msg_fplword
@@ -97,10 +102,49 @@ mov MEMCPY_LEN, 26
 call _memcpy
 nop
 
-;Let's play !
+;Let's play with the second player !
 
 mov WORD, offset tp_fplword
 call _play
+
+;Abort game.
+
+cmp GAME_STATUS, GAME_STATUS_ABORT
+je tp_end
+
+;Ask the second player's secret word.
+
+mov MEMCPY_SRC, offset tp_splname
+mov MEMCPY_DEST, offset tp_msg_splword
+mov MEMCPY_LEN, 8
+call _memcpy
+mov IF_MSG, offset tp_msg_splword
+mov IF_MAXLEN, 26
+mov IF_EWD, 1
+call _input_field
+mov MEMCPY_SRC, offset IF_WORD
+mov MEMCPY_DEST, offset tp_splword
+mov MEMCPY_LEN, 26
+call _memcpy
+nop
+
+;Let's play with the first player !
+
+mov WORD, offset tp_splword
+call _play
+
+;Abort game.
+
+cmp GAME_STATUS, GAME_STATUS_ABORT
+je tp_end
+
+;Game loop.
+
+dec cx
+cmp cx, 0
+jne tp_game_loop
+
+tp_end:
 
 ;Restore registers
 
@@ -120,5 +164,14 @@ tp_msg_splname db "Please enter the second player's name:$"
 tp_splname db "--------"
 tp_msg_fplword db "******** enter your secret word:$"
 tp_fplword db "-------------------------"
+tp_msg_splword db "******** enter your secret word:$"
+tp_splword db "-------------------------"
+
+
+
+
+
+
+
 
 
