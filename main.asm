@@ -69,6 +69,8 @@ include "singlepl.asm" ;Contains the single player mode.
 include "twopl.asm"    ;Contains the two player mode.
 include "options.asm"  ;Contains the options menu.
 include "modesel.asm"  ;Contains the mode selection menu.
+include "scores.asm"   ;Contains the functions for displaying and managing
+                       ;scores.
 
 ;RESOURCE
 include "asciiart.res" ;Contains the ASCII art of the game.

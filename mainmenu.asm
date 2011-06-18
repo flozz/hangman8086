@@ -147,6 +147,13 @@ main_menu_st:
         jmp _main_menu
         main_menu_option_end:
 
+        ;Scores
+        cmp main_menu_selected, MAIN_MENU_SCORES
+        jne main_menu_scores_end
+        call _scores
+        jmp _main_menu
+        main_menu_scores_end:
+
         ;Quit
         cmp main_menu_selected, MAIN_MENU_QUIT
         je main_menu_end

@@ -36,7 +36,8 @@
 ;; Contains the single player mode.
 ;;
 ;; Index:
-;;     _single_player()            -- Play in single player mode.
+;;     _single_player()    -- Play in single player mode.
+;;     _sp_gameover()      -- Prints the game over screen
 ;;
 
 
@@ -134,6 +135,11 @@ cmp GAME_STATUS, GAME_STATUS_LOOSE ; Loose && competition ?
 jnz sp_start
 cmp MODE, MODE_COMPETITION
 jnz sp_start
+
+mov NSPS_NAME, offset PLAYER
+mov ax, SCORE
+mov NSPS_SCORE, ax
+call _new_sp_score
 
 call _sp_gameover
 
