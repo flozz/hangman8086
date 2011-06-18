@@ -66,6 +66,7 @@ include "playsnd.asm"  ;Contains the function for playing sounds.
 include "stscreen.asm" ;Contains the function that print the startup screen.
 include "game.asm"     ;Contains the game functions.
 include "singlepl.asm" ;Contains the single player mode.
+include "twopl.asm"    ;Contains the two player mode.
 include "options.asm"  ;Contains the options menu.
 include "modesel.asm"  ;Contains the mode selection menu.
 
