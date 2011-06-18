@@ -52,6 +52,8 @@ GAME_STATUS_LOOSE equ 0
 GAME_STATUS_WIN   equ 1
 GAME_STATUS_ABORT equ 2
 
+SCORE  dw 0
+PLAYER dw "UNNAMED "
 
 
 ;============================================================ _play(WORD) ====
@@ -59,6 +61,7 @@ GAME_STATUS_ABORT equ 2
 
 ;; Usage:
 ;; mov WORD, offset <word>
+;; mov PLAYER, offset <playername>
 ;; call _play
 
 ;; Function args:
@@ -87,9 +90,9 @@ mov GAME_STATUS, GAME_STATUS_LOOSE
 play_main_loop:
     call _clear_working
     call _print_gword
-
     call _print_tried_letters
     call _print_gibbet
+    call _print_score
 
     ;Check if the play win
     ;For checking we search underscores in play_gword... It is not very
@@ -471,6 +474,75 @@ pop bx
 pop ax
 
 ret
+
+
+
+;========================================================= _print_score() ====
+;; Print the score in competition mode).
+
+;; Usage:
+;; call _print_tried_letters
+
+
+_print_score:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Check if we are in competition mode
+cmp MODE, MODE_COMPETITION
+jnz prn_score_end
+
+;Set the scorebar
+mov ah, 0x07
+mov al, 0         ; Clear
+mov bh, COLOR_SCORE
+mov ch, header_height + 1  ;y1
+mov cl, 0                  ;x1
+mov dh, header_height + 1  ;y2
+mov dl, COLS               ;x2
+int 0x10
+
+;Paste the player name
+mov MEMCPY_SRC, offset PLAYER
+mov MEMCPY_DEST, offset prn_score_str
+add MEMCPY_DEST, 2
+mov MEMCPY_LEN, 8
+call _memcpy
+
+;Convert the score into string and paste it
+mov ax, SCORE
+mov I2S_INT, ax
+call _inttostr
+mov MEMCPY_SRC, offset I2S_STR
+add MEMCPY_DEST, 11
+mov MEMCPY_LEN, 4
+call _memcpy
+
+;Print the string
+mov POS_X, 0
+mov POS_Y, header_height + 1
+call _move_cursor
+mov ah, 0x09
+mov dx, offset prn_score_str
+int 0x21
+
+prn_score_end:
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+;Data
+prn_score_str db " ",0xC0,"12345678",0xD9," ",0xC0,"1234",0xD9,"$"
 
 
 
