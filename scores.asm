@@ -45,13 +45,13 @@
 
 
 SP_SCORE_1N db "FLOZZ   "
-SP_SCORE_1S dw 5000
+SP_SCORE_1S dw 1000
 
 SP_SCORE_2N db "WILBER  "
-SP_SCORE_2S dw 1000
+SP_SCORE_2S dw 100
 
 SP_SCORE_3N db "THIERRY "
-SP_SCORE_3S dw 100
+SP_SCORE_3S dw 50
 
 
 TP_SCORE_1N db "TOMATE  "
@@ -268,8 +268,8 @@ scores_disp_tpl db " > <PLAYER> <SC>$"
 ;; call _scores
 
 ;; Args:
-NSPS_NAME  db "UNNAMED " ;The player name
-NSPS_SCORE dw 0          ;The score
+NSPS_NAME  dw 0 ;Address of the player name
+NSPS_SCORE dw 0 ;The score
 
 
 _new_sp_score:
@@ -283,7 +283,7 @@ push dx
 ;Check if the score is better than the best score
     mov ax, NSPS_SCORE
     cmp SP_SCORE_1S, ax
-    jnz nsps_1s_end
+    jge nsps_1s_end
 
     mov ax, SP_SCORE_2S
     mov SP_SCORE_3S, ax
@@ -301,7 +301,8 @@ push dx
 
     mov ax, NSPS_SCORE
     mov SP_SCORE_1S, ax
-    mov MEMCPY_SRC, offset NSPS_NAME
+    mov ax, NSPS_NAME
+    mov MEMCPY_SRC, ax
     mov MEMCPY_DEST, offset SP_SCORE_1N
     mov MEMCPY_LEN, 8
     call _memcpy
@@ -312,7 +313,7 @@ push dx
 ;Check if the score is better than the second score
     mov ax, NSPS_SCORE
     cmp SP_SCORE_2S, ax
-    jnz nsps_2s_end
+    jge nsps_2s_end
 
     mov ax, SP_SCORE_2S
     mov SP_SCORE_3S, ax
@@ -323,7 +324,8 @@ push dx
 
     mov ax, NSPS_SCORE
     mov SP_SCORE_2S, ax
-    mov MEMCPY_SRC, offset NSPS_NAME
+    mov ax, NSPS_NAME
+    mov MEMCPY_SRC, ax
     mov MEMCPY_DEST, offset SP_SCORE_2N
     mov MEMCPY_LEN, 8
     call _memcpy
@@ -334,11 +336,12 @@ push dx
 ;Check if the score is better than the third score
     mov ax, NSPS_SCORE
     cmp SP_SCORE_3S, ax
-    jnz nsps_end
+    jge nsps_end
 
     mov ax, NSPS_SCORE
     mov SP_SCORE_3S, ax
-    mov MEMCPY_SRC, offset NSPS_NAME
+    mov ax, NSPS_NAME
+    mov MEMCPY_SRC, ax
     mov MEMCPY_DEST, offset SP_SCORE_3N
     mov MEMCPY_LEN, 8
     call _memcpy
