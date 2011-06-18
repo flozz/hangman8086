@@ -57,6 +57,8 @@ push bx
 push cx
 push dx
 
+mov MODE, MODE_PRACTICE ;FIXME
+
 ;Ask the first player's name
 
 mov IF_MSG, offset tp_msg_fplname
