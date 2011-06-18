@@ -36,12 +36,12 @@
 ;; Contains the function for playing sounds.
 ;;
 ;; Index:
-;;     _play_sound() -- Plays a sound.
+;;     _play_sound(SOUND) -- Plays a sound.
 ;;
 
 
 
-;========================================================== _play_sound() ====
+;===================================================== _play_sound(SOUND) ====
 ;; Plays a sound.
 
 ;; Usage:

@@ -53,6 +53,8 @@ ROWS equ 25     ;Terminal height
 COLOR_HEADER equ 00101111b  ;Color of the Header an help area
 COLOR_ACTIVE equ 00001111b  ;Color of the Menu/Game/Animation area
 COLOR_CURSOR equ 00000010b  ;Color of the menu cursor
+COLOR_FIELD  equ 00101111b  ;Color of the input fields
+COLOR_SCORE  equ 00000010b  ;Color of the score bar
 
 
 
@@ -65,6 +67,7 @@ include "stscreen.asm" ;Contains the function that print the startup screen.
 include "game.asm"     ;Contains the game functions.
 include "singlepl.asm" ;Contains the single player mode.
 include "options.asm"  ;Contains the options menu.
+include "modesel.asm"  ;Contains the mode selection menu.
 
 ;RESOURCE
 include "asciiart.res" ;Contains the ASCII art of the game.
