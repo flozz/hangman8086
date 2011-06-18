@@ -81,6 +81,8 @@ mov MEMCPY_LEN, 8
 call _memcpy
 nop
 
+
+
 ;Game loop.
 
 mov cx, 3
@@ -106,6 +108,12 @@ nop
 
 mov WORD, offset tp_fplword
 call _play
+
+;Count the second player's lives.
+
+mov ax, 0
+mov al, play_lives
+add play_sp_lives, al
 
 ;Abort game.
 
@@ -133,6 +141,12 @@ nop
 mov WORD, offset tp_splword
 call _play
 
+;Count the first player's lives.
+
+mov ax, 0
+mov al, play_lives
+add play_fp_lives, al
+
 ;Abort game.
 
 cmp GAME_STATUS, GAME_STATUS_ABORT
@@ -143,6 +157,57 @@ je tp_end
 dec cx
 cmp cx, 0
 jne tp_game_loop
+
+;Put the number of lives of the second player in bx.
+
+mov ax, 0
+mov al, play_sp_lives
+
+;Jump to fp_win if the first player win.
+
+call _draw_ui
+
+cmp play_fp_lives, al
+jg fp_win
+
+;Display message if second player win.
+
+mov POS_X, (COLS-24)/2
+mov POS_Y, header_height + 4
+call _move_cursor
+mov MEMCPY_SRC, offset tp_splname
+mov MEMCPY_DEST, offset tp_msg_win
+mov MEMCPY_LEN, 8
+call _memcpy
+mov ah, 0x09
+mov dx, offset tp_msg_win
+int 0x21
+
+;wait
+mov ah, 0x86
+mov cx, 124
+int 0x15
+
+jmp tp_end
+
+;Display message if first player win.
+
+fp_win:
+mov POS_X, (COLS-24)/2
+mov POS_Y, header_height + 4
+call _move_cursor
+mov MEMCPY_SRC, offset tp_fplname
+mov MEMCPY_DEST, offset tp_msg_win
+mov MEMCPY_LEN, 8
+call _memcpy
+mov ah, 0x09
+mov dx, offset tp_msg_win
+int 0x21
+
+;wait
+mov ah, 0x86
+mov cx, 124
+int 0x15
 
 tp_end:
 
@@ -158,20 +223,18 @@ ret
 
 
 ;Datas
+
 tp_msg_fplname db "Please enter the first player's name:$"
 tp_fplname db "--------"
 tp_msg_splname db "Please enter the second player's name:$"
 tp_splname db "--------"
+
 tp_msg_fplword db "******** enter your secret word:$"
 tp_fplword db "-------------------------"
 tp_msg_splword db "******** enter your secret word:$"
 tp_splword db "-------------------------"
 
+tp_msg_win db "******** is the winner !$"
 
-
-
-
-
-
-
-
+play_fp_lives db 0
+play_sp_lives db 0
