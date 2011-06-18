@@ -36,7 +36,8 @@
 ;; Contains the single player mode.
 ;;
 ;; Index:
-;;     _single_player()            -- Play in single player mode.
+;;     _single_player()    -- Play in single player mode.
+;;     _sp_gameover()      -- Prints the game over screen
 ;;
 
 

@@ -42,6 +42,7 @@
 ;;     _print_gword()       -- Prints the guessed word (e.g. H _ _ _ _ _ N).
 ;;     _print_tried_letters -- Prints the letters that the player have already
 ;;                             tried (e.g. A U I O W).
+;;     _print_score()       -- Print the score (in competition mode).
 ;;     _game_anima()        -- Displays an animation when the player loose
 ;;                             or win.
 ;;
@@ -478,7 +479,7 @@ ret
 
 
 ;========================================================= _print_score() ====
-;; Print the score in competition mode).
+;; Print the score (in competition mode).
 
 ;; Usage:
 ;; call _print_tried_letters

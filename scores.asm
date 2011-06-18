@@ -36,7 +36,10 @@
 ;; Contains the functions for displaying and managing scores.
 ;;
 ;; Index:
-;;     _scores  -- Displays the best scores.
+;;     _scores                               -- Displays the best scores.
+;;     _new_sp_score(NSPS_NAME, NSPS_SCORE)  -- Insert the new score if
+;;                                              necessary (single PLAYER
+;;                                              mode).
 ;;
 
 
@@ -51,7 +54,7 @@ SP_SCORE_3N db "THIERRY "
 SP_SCORE_3S dw 100
 
 
-TP_SCORE_1N db "FLOZZ   "
+TP_SCORE_1N db "TOMATE  "
 TP_SCORE_1S dw 42
 
 TP_SCORE_2N db "WILBER  "
@@ -253,5 +256,102 @@ scores_help db "Press any key$"
 scores_sp_title db "-- SINGLE PLAYER --$"
 scores_tp_title db "--- TWO PLAYERS ---$"
 scores_disp_tpl db " > <PLAYER> <SC>$"
+
+
+
+;=================================== _new_sp_score(NSPS_NAME, NSPS_SCORE) ====
+;; Insert the new score if necessary (single player mode).
+
+;; Usage:
+;; mov NSPS_NAME, offset <playername>
+;; mov NSPS_SCORE, <score>
+;; call _scores
+
+;; Args:
+NSPS_NAME  db "UNNAMED " ;The player name
+NSPS_SCORE dw 0          ;The score
+
+
+_new_sp_score:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Check if the score is better than the best score
+    mov ax, NSPS_SCORE
+    cmp SP_SCORE_1S, ax
+    jnz nsps_1s_end
+
+    mov ax, SP_SCORE_2S
+    mov SP_SCORE_3S, ax
+    mov MEMCPY_SRC, offset SP_SCORE_2N
+    mov MEMCPY_DEST, offset SP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, SP_SCORE_1S
+    mov SP_SCORE_2S, ax
+    mov MEMCPY_SRC, offset SP_SCORE_1N
+    mov MEMCPY_DEST, offset SP_SCORE_2N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, NSPS_SCORE
+    mov SP_SCORE_1S, ax
+    mov MEMCPY_SRC, offset NSPS_NAME
+    mov MEMCPY_DEST, offset SP_SCORE_1N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    jmp nsps_end
+    nsps_1s_end:
+
+;Check if the score is better than the second score
+    mov ax, NSPS_SCORE
+    cmp SP_SCORE_2S, ax
+    jnz nsps_2s_end
+
+    mov ax, SP_SCORE_2S
+    mov SP_SCORE_3S, ax
+    mov MEMCPY_SRC, offset SP_SCORE_2N
+    mov MEMCPY_DEST, offset SP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, NSPS_SCORE
+    mov SP_SCORE_2S, ax
+    mov MEMCPY_SRC, offset NSPS_NAME
+    mov MEMCPY_DEST, offset SP_SCORE_2N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    jmp nsps_end
+    nsps_2s_end:
+
+;Check if the score is better than the third score
+    mov ax, NSPS_SCORE
+    cmp SP_SCORE_3S, ax
+    jnz nsps_end
+
+    mov ax, NSPS_SCORE
+    mov SP_SCORE_3S, ax
+    mov MEMCPY_SRC, offset NSPS_NAME
+    mov MEMCPY_DEST, offset SP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+
+nsps_end:
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
 
 
