@@ -135,6 +135,8 @@ jnz sp_start
 cmp MODE, MODE_COMPETITION
 jnz sp_start
 
+call _sp_gameover
+
 sp_end:
 
 ;Restore registers
@@ -148,5 +150,62 @@ ret
 
 ;Datas
 sp_msg_plname db "Please enter your name:$"
+
+
+
+;========================================================= _sp_gameover() ====
+;; Prints the game over screen
+
+;; Usage:
+;; call _sp_gameover
+
+
+_sp_gameover:
+
+call _draw_ui
+
+mov POS_X, (COLS-gameover_len)/2
+mov POS_Y, header_height + 3
+
+mov ah, 0x09
+mov dx, offset gameover
+
+sp_gameover_loop:
+    call _move_cursor
+    int 0x21
+    inc POS_Y
+    add dx, gameover_len
+    cmp POS_Y, gameover_height + header_height + 3
+    jne sp_gameover_loop
+
+add POS_Y, 2
+mov POS_X, (COLS-sp_go_score_len)/2
+call _move_cursor
+
+mov ax, SCORE
+mov I2S_INT, ax
+call _inttostr
+
+mov MEMCPY_SRC, offset I2S_STR
+mov MEMCPY_DEST, offset sp_go_score
+add MEMCPY_DEST, 15
+mov MEMCPY_LEN, 4
+call _memcpy
+
+mov ah, 0x09
+mov dx, offset sp_go_score
+int 0x21
+
+;wait
+mov ah, 0x86
+mov cx, 64
+int 0x15
+
+ret
+
+
+;datas
+sp_go_score      db "Your score is: 1234$"
+sp_go_score_len equ 20
 
 
