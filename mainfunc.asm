@@ -224,6 +224,8 @@ _print_help:
 
 ;Backup registers
 push ax
+push bx
+push cx
 push dx
 
 ;Move the cursor at the bottom of the screen
@@ -232,12 +234,28 @@ mov POS_Y, ROWS-1
 call _move_cursor
 
 ;Print the text
-mov ah, 0x09
-mov dx, HELP_STR
-int 0x21
+;mov ah, 0x09       ;This code works, but there is
+;mov dx, HELP_STR   ;a bug in Emu8086 (it scolls down the screen
+;int 0x21           ;when it should not do it)......  :/
+mov bx, HELP_STR
+mov ah, 0x0A
+mov cx, 1
+prn_help_loop:
+    call _move_cursor
+    mov al, [bx]
+    push bx
+    mov bx, 0
+    int 0x10 ;print
+    pop bx
+    inc bx
+    inc POS_X
+    cmp [bx], '$'
+    jne prn_help_loop
 
 ;Restore registers
 pop dx
+pop cx
+pop bx
 pop ax
 
 ret

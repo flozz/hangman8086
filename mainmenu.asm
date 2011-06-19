@@ -156,13 +156,14 @@ main_menu_st:
 
         ;Quit
         cmp main_menu_selected, MAIN_MENU_QUIT
-        je main_menu_end
+        je main_menu_end2
 
         jmp main_menu_st_refresh
 
 main_menu_end:
 mov SOUND, offset SND_MENU_VALID
 call _play_sound
+main_menu_end2:
 
 ret
 
