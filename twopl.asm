@@ -57,10 +57,15 @@ push bx
 push cx
 push dx
 
-mov MODE, MODE_PRACTICE ;FIXME
+;Get the mode
+call _mode_menu
+
+;Back to the main menu if necessary
+cmp MODE, -1
+je tp_end
+
 
 ;Ask the first player's name
-
 mov IF_MSG, offset tp_msg_fplname
 mov IF_MAXLEN, 8
 mov IF_EWD, 0
@@ -109,13 +114,31 @@ nop
 ;Let's play with the second player !
 
 mov WORD, offset tp_fplword
+;SET PLAYER
+mov MEMCPY_SRC, offset tp_splname
+mov MEMCPY_DEST, offset PLAYER
+mov MEMCPY_LEN, 8
+call _memcpy
+
+;SET SCORE
+mov ah, 0
+mov al, play_sp_lives
+mov SCORE, ax
+
 call _play
+
 
 ;Count the second player's lives.
 
 mov ax, 0
 mov al, play_lives
 add play_sp_lives, al
+
+;Test if play whith gibbets, add 6 points if yes.
+cmp OPTION_GIBBET, OPTION_GIBBET_ON
+jnz tp_gibbet_end_sp:
+add play_sp_lives, 6
+tp_gibbet_end_sp:
 
 ;Abort game.
 
@@ -141,6 +164,17 @@ nop
 ;Let's play with the first player !
 
 mov WORD, offset tp_splword
+;SET PLAYER
+mov MEMCPY_SRC, offset tp_fplname
+mov MEMCPY_DEST, offset PLAYER
+mov MEMCPY_LEN, 8
+call _memcpy
+
+;SET SCORE
+mov ah, 0
+mov al, play_fp_lives
+mov SCORE, ax
+
 call _play
 
 ;Count the first player's lives.
@@ -148,6 +182,12 @@ call _play
 mov ax, 0
 mov al, play_lives
 add play_fp_lives, al
+
+;Test if play whith gibbets, add 6 points if yes.
+cmp OPTION_GIBBET, OPTION_GIBBET_ON
+jnz tp_gibbet_end2:
+add play_fp_lives, 6
+tp_gibbet_end2:
 
 ;Abort game.
 
@@ -160,7 +200,7 @@ dec cx
 cmp cx, 0
 jne tp_game_loop
 
-;Put the number of lives of the second player in bx.
+;Put the number of lives of the second player in ax.
 
 mov ax, 0
 mov al, play_sp_lives
@@ -174,6 +214,18 @@ jg fp_win
 
 ;Display message if second player win.
 
+;check if competition mode is set.
+cmp MODE, MODE_COMPETITION
+jne norm_sp_win
+
+;SCORE
+mov NTPS_NAME, offset tp_splname
+mov ah, 0
+mov al, play_sp_lives
+mov NTPS_SCORE, ax
+call _new_tp_score
+
+norm_sp_win:
 mov POS_X, (COLS-24)/2
 mov POS_Y, header_height + 4
 call _move_cursor
@@ -185,9 +237,32 @@ mov ah, 0x09
 mov dx, offset tp_msg_win
 int 0x21
 
+cmp MODE, MODE_COMPETITION
+jnz norm_sp_win_end
+
+add POS_Y, 2
+call _move_cursor
+
+mov ah, 0
+mov al, play_sp_lives
+mov I2S_INT, ax
+call _inttostr
+
+mov MEMCPY_SRC, offset I2S_STR
+mov MEMCPY_DEST, offset tp_msg_score
+add MEMCPY_DEST, 7
+mov MEMCPY_LEN, 4
+call _memcpy
+
+mov ah, 0x09
+mov dx, offset tp_msg_score
+int 0x21
+
+norm_sp_win_end:
+
 ;wait
 mov ah, 0x86
-mov cx, 124
+mov cx, 96
 int 0x15
 
 jmp tp_end
@@ -195,6 +270,19 @@ jmp tp_end
 ;Display message if first player win.
 
 fp_win:
+
+;Check if competition mode is set.
+cmp MODE, MODE_COMPETITION
+jne norm_fp_win
+
+;SCORE
+mov NTPS_NAME, offset tp_fplname
+mov ah, 0
+mov al, play_sp_lives
+mov NTPS_SCORE, ax
+call _new_tp_score
+
+norm_fp_win:
 mov POS_X, (COLS-24)/2
 mov POS_Y, header_height + 4
 call _move_cursor
@@ -206,9 +294,32 @@ mov ah, 0x09
 mov dx, offset tp_msg_win
 int 0x21
 
+cmp MODE, MODE_COMPETITION
+jnz norm_fp_win_end
+
+add POS_Y, 2
+call _move_cursor
+
+mov ah, 0
+mov al, play_fp_lives
+mov I2S_INT, ax
+call _inttostr
+
+mov MEMCPY_SRC, offset I2S_STR
+mov MEMCPY_DEST, offset tp_msg_score
+add MEMCPY_DEST, 7
+mov MEMCPY_LEN, 4
+call _memcpy
+
+mov ah, 0x09
+mov dx, offset tp_msg_score
+int 0x21
+
+norm_fp_win_end:
+
 ;wait
 mov ah, 0x86
-mov cx, 124
+mov cx, 96
 int 0x15
 
 tp_end:
@@ -237,6 +348,8 @@ tp_msg_splword db "******** enter your secret word:$"
 tp_splword db "-------------------------"
 
 tp_msg_win db "******** is the winner !$"
+
+tp_msg_score db "Score: 0000$"
 
 play_fp_lives db 0
 play_sp_lives db 0

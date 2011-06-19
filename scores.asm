@@ -40,6 +40,9 @@
 ;;     _new_sp_score(NSPS_NAME, NSPS_SCORE)  -- Insert the new score if
 ;;                                              necessary (single PLAYER
 ;;                                              mode).
+;;     _new_tp_score(NTPS_NAME, NTPS_SCORE)  -- Insert the new score if
+;;                                              necessary (two PLAYER
+;;                                              mode).
 ;;
 
 
@@ -265,7 +268,7 @@ scores_disp_tpl db " > <PLAYER> <SC>$"
 ;; Usage:
 ;; mov NSPS_NAME, offset <playername>
 ;; mov NSPS_SCORE, <score>
-;; call _scores
+;; call _new_sp_score
 
 ;; Args:
 NSPS_NAME  dw 0 ;Address of the player name
@@ -348,6 +351,106 @@ push dx
 
 
 nsps_end:
+
+;Restore registers
+pop dx
+pop cx
+pop bx
+pop ax
+
+ret
+
+
+
+;=================================== _new_tp_score(NTPS_NAME, NTPS_SCORE) ====
+;; Insert the new score if necessary (two player mode).
+
+;; Usage:
+;; mov NTPS_NAME, offset <playername>
+;; mov NTPS_SCORE, <score>
+;; call _new_tp_score
+
+;; Args:
+NTPS_NAME  dw 0 ;Address of the player name
+NTPS_SCORE dw 0 ;The score
+
+
+_new_tp_score:
+
+;Backup registers
+push ax
+push bx
+push cx
+push dx
+
+;Check if the score is better than the best score
+    mov ax, NTPS_SCORE
+    cmp TP_SCORE_1S, ax
+    jge ntps_1s_end
+
+    mov ax, TP_SCORE_2S
+    mov TP_SCORE_3S, ax
+    mov MEMCPY_SRC, offset TP_SCORE_2N
+    mov MEMCPY_DEST, offset TP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, TP_SCORE_1S
+    mov TP_SCORE_2S, ax
+    mov MEMCPY_SRC, offset TP_SCORE_1N
+    mov MEMCPY_DEST, offset TP_SCORE_2N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, NTPS_SCORE
+    mov TP_SCORE_1S, ax
+    mov ax, NTPS_NAME
+    mov MEMCPY_SRC, ax
+    mov MEMCPY_DEST, offset TP_SCORE_1N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    jmp ntps_end
+    ntps_1s_end:
+
+;Check if the score is better than the second score
+    mov ax, NTPS_SCORE
+    cmp TP_SCORE_2S, ax
+    jge ntps_2s_end
+
+    mov ax, TP_SCORE_2S
+    mov TP_SCORE_3S, ax
+    mov MEMCPY_SRC, offset TP_SCORE_2N
+    mov MEMCPY_DEST, offset TP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    mov ax, NTPS_SCORE
+    mov TP_SCORE_2S, ax
+    mov ax, NTPS_NAME
+    mov MEMCPY_SRC, ax
+    mov MEMCPY_DEST, offset TP_SCORE_2N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+    jmp ntps_end
+    ntps_2s_end:
+
+;Check if the score is better than the third score
+    mov ax, NTPS_SCORE
+    cmp TP_SCORE_3S, ax
+    jge ntps_end
+
+    mov ax, NTPS_SCORE
+    mov TP_SCORE_3S, ax
+    mov ax, NTPS_NAME
+    mov MEMCPY_SRC, ax
+    mov MEMCPY_DEST, offset TP_SCORE_3N
+    mov MEMCPY_LEN, 8
+    call _memcpy
+
+
+ntps_end:
 
 ;Restore registers
 pop dx
